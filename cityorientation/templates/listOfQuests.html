@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-grid mdl-grid">
+    {% for quest in quests %}
+        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+            <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/quest_images/title.png') center / cover;">
+                <h2 class="mdl-card__title-text">{{ quest['name'] }}</h2>
+            </div>
+            <div class="mdl-card__supporting-text">
+                Место проведения: {{ quest['place'] }}
+                <br>
+                Количество КП: {{ quest['amount_of_cp'] }}
+                <br>
+                Время старта: {{ quest['date'] }}
+            </div>
+
+            <div class="mdl-card__actions mdl-card--border" style="display: flex;">
+                <button class="save_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
+                <div class="mdl-layout-spacer"></div>
+                <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
+                        id="remove_button">Редактировать</button>
+            </div>
+        </div>
+    {% endfor %}
+    <div style="position: fixed; bottom: 0; right: 0; margin: 30px;">
+        <button class="add_button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab mdl-button--accent mdl-shadow--6dp"
+                id="upload-file-btn" style="margin-left: 10px">
+            <i class="material-icons">add</i>
+        </button>
+    </div>
+</div>
+<script src="static/js/alerts.js"></script>
+{% endblock content %}
