@@ -1,23 +1,30 @@
+**************************************
+*                                    *
+*  Документация по REST API админки  *
+*                                    *
+**************************************
 Залогинить команду. Проверяет наличие логина и пароля. В случае успеха дополнительно возвращает текущее имя команды.
 
 curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"password\":\"pass1\"}" http://127.0.0.1:5000/api/v1.0/loginTeam
 GET
 /api/v1.0/loginTeam
 {
-	"login": login,
-	"password": password
+	'login': login,
+	'password': password
 }
 login - логин команды
 password - пароль команды
 ----------
 {
-	'answer': answer
+	'answer': answer,
+	'team_name': team_name
 }
 answer - ответ сервера
 	invalid request - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
-	ok - всё хорошо, возвращает так же 'team_name' - название команды
+	ok - всё хорошо
+team_name - название команды [if answer == 'ok']
 
 =========================
 Изменяет нащвание команды.
@@ -26,8 +33,8 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 POST
 /api/v1.0/renameTeam
 {
-	"login": login,
-	"team_name": team_name
+	'login': login,
+	'team_name': team_name
 }
 login - логин команды
 team_name - название команды
@@ -48,19 +55,21 @@ curl.exe -H "Content-Type: application/json" -X GET http://127.0.0.1:5000/api/v1
 GET
 /api/v1.0/listOfQuests
 ----------
-{[
-	{
-		'quest_id': quest_id,
-		'name': name,
-		'place': place,
-		'date': date,
-		'amount_of_cp': amount_of_cp
-	},
-	{ ... },
-	...
-]}
-Ответ - массив квестов.
-Для каждого:
+{
+	'answer': answer,
+	'list_of_quests':
+	[
+		{
+			'quest_id': quest_id,
+			'name': name,
+			'place': place,
+			'date': date,
+			'amount_of_cp': amount_of_cp
+		},
+	]
+}
+answer - 'ok' // Всегда
+list_of_quests - массив квестов.
 	quest_id - ID квеста
 	name - название квеста
 	place - место проведения
@@ -73,6 +82,10 @@ GET
 curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/joinToQuest
 POST
 /api/v1.0/joinToQuest
+{
+	'login': login,
+	'quest_id': quest_id
+}
 ----------
 {
 	'answer': answer
@@ -86,4 +99,61 @@ answer - ответ сервера
 	ok - всё хорошо
 
 =========================
+Возвращает список заданий
+
+curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/getTasks
+GET
+/api/v1.0/getTasks
+{
+	'login': login,
+	'quest_id': quest_id
+}
+----------
+{
+	'answer': answer,
+	'tasks': [
+		{
+			'task_id': task_id,
+			'img': img,
+			'content': content,
+			'answers': [answer1, answer2, ],
+			'time': time,
+			'time_tips': [time_1, time_2],
+			'tips': [tip_1, tip_2]
+		},
+	]
+}
+answer - ответ сервера
+	invalid request - отсутствует login или quest_id
+	invalid types - login, quest_id не строки
+	team does not exist - команды не существует
+	quest does not exist - квеста не существует
+	ok - всё хорошо
+tasks - массив задач
+	task_id - ID задачи
+	img - полный путь до картинки в сети (url)
+	content - основной текст задачи(вопроса)
+	answers - массив из возможных вариантов ответа. Гарантируется, что каждый ответ в нижнем регистре и без пробелов по краям
+	time - время в минутах, в течении которого доступен этот вопрос
+	time_tips - массив из двух значений: время появления первой и второй подсказки с времени начала этой задачи
+	tips - массив из двух строк: подсказки к задаче.
+	
+=========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
