@@ -1,0 +1,89 @@
+Залогинить команду. Проверяет наличие логина и пароля. В случае успеха дополнительно возвращает текущее имя команды.
+
+curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"password\":\"pass1\"}" http://127.0.0.1:5000/api/v1.0/loginTeam
+GET
+/api/v1.0/loginTeam
+{
+	"login": login,
+	"password": password
+}
+login - логин команды
+password - пароль команды
+----------
+{
+	'answer': answer
+}
+answer - ответ сервера
+	invalid request - отсутствует login или password
+	invalid types - login, password не строки
+	team does not exist - команды не существует
+	ok - всё хорошо, возвращает так же 'team_name' - название команды
+
+=========================
+Изменяет нащвание команды.
+
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"team_name\":\"zzzzzz\"}" http://127.0.0.1:5000/api/v1.0/renameTeam
+POST
+/api/v1.0/renameTeam
+{
+	"login": login,
+	"team_name": team_name
+}
+login - логин команды
+team_name - название команды
+----------
+{
+	'answer': answer
+}
+answer - ответ сервера
+	invalid request - отсутствует login или password
+	invalid types - login, password не строки
+	team does not exist - команды не существует
+	ok - всё хорошо
+
+=========================
+Возвращает список квестов
+
+curl.exe -H "Content-Type: application/json" -X GET http://127.0.0.1:5000/api/v1.0/listOfQuests
+GET
+/api/v1.0/listOfQuests
+----------
+{[
+	{
+		'quest_id': quest_id,
+		'name': name,
+		'place': place,
+		'date': date,
+		'amount_of_cp': amount_of_cp
+	},
+	{ ... },
+	...
+]}
+Ответ - массив квестов.
+Для каждого:
+	quest_id - ID квеста
+	name - название квеста
+	place - место проведения
+	date - дата проведения
+	amount_of_cp - количество контрольных точек
+
+=========================
+Добавляет команду к участию в квесте.
+
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/joinToQuest
+POST
+/api/v1.0/joinToQuest
+----------
+{
+	'answer': answer
+}
+answer - ответ сервера
+	invalid request - отсутствует login или quest_id
+	invalid types - login, quest_id не строки
+	quest does not exist - квеста не существует
+	team does not exist - команды не существует
+	team had already joined - команда уже присоединилась к участию в квесте
+	ok - всё хорошо
+
+=========================
+
