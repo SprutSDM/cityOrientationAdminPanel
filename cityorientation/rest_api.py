@@ -21,7 +21,7 @@ def check_input_data(req, *args):
 
 # Возвращает ok и team_name, если такая пара login-password существует
 class LoginTeam(Resource):
-    def get(self):
+    def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'password')
         if ans != 'ok':
@@ -50,7 +50,7 @@ class RenameTeam(Resource):
 
 # Возвращает список квестов
 class ListOfQuests(Resource):
-    def get(self):
+    def post(self):
         list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False, 'template_id': False})]
         for quest in list_of_quests:
             template = db_templates.find_one({'template_id': quest['template_id']})
@@ -88,7 +88,7 @@ class JoinToQuest(Resource):
 
 # Возвращает список заданий
 class ListOfTasks(Resource):
-    def get(self):
+    def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'quest_id')
         if ans != 'ok':

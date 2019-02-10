@@ -5,8 +5,7 @@
 **************************************
 Залогинить команду. Проверяет наличие логина и пароля. В случае успеха дополнительно возвращает текущее имя команды.
 
-curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"password\":\"pass1\"}" http://127.0.0.1:5000/api/v1.0/loginTeam
-GET
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"password\":\"pass1\"}" http://127.0.0.1:5000/api/v1.0/loginTeam
 /api/v1.0/loginTeam
 {
 	'login': login,
@@ -31,7 +30,6 @@ team_name - название команды [if answer == 'ok']
 Изменяет нащвание команды.
 
 curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"team_name\":\"zzzzzz\"}" http://127.0.0.1:5000/api/v1.0/renameTeam
-POST
 /api/v1.0/renameTeam
 {
 	'login': login,
@@ -53,8 +51,7 @@ answer - ответ сервера
 =========================
 Возвращает список квестов
 
-curl.exe -H "Content-Type: application/json" -X GET http://127.0.0.1:5000/api/v1.0/listOfQuests
-GET
+curl.exe -H "Content-Type: application/json" -X POST http://127.0.0.1:5000/api/v1.0/listOfQuests
 /api/v1.0/listOfQuests
 ----------
 {
@@ -86,7 +83,6 @@ list_of_quests - массив квестов.
 Добавляет команду к участию в квесте.
 
 curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/joinToQuest
-POST
 /api/v1.0/joinToQuest
 {
 	'login': login,
@@ -108,8 +104,7 @@ answer - ответ сервера
 =========================
 Возвращает список заданий
 
-curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/listOfTasks
-GET
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/listOfTasks
 /api/v1.0/listOfTasks
 {
 	'login': login,
