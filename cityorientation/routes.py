@@ -4,7 +4,7 @@ from flask import render_template, redirect, url_for, request, send_from_directo
 
 @app.route('/')
 def home():
-    return redirect('home.html')
+    return render_template('home.html')
 
 
 @app.route('/listOfQuests', methods=['GET'])

@@ -27,7 +27,7 @@ message - ответ сервера
 team_name - название команды [if message == 'ok']
 
 =========================
-Изменяет нащвание команды.
+Изменяет название команды.
 
 curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"team_name\":\"zzzzzz\"}" http://127.0.0.1:5000/api/v1.0/renameTeam
 /api/v1.0/renameTeam
@@ -160,7 +160,7 @@ task_number - номер решенной задачи
 message - ответ сервера
 	empty request - не передано не одного параметра
 	missing key - отсутствует login, quest_id или task_number
-	invalid types - login, quest_id не строки
+	invalid types - login, quest_id, task_number не строки
 	team does not exist - команды не существует
 	quest does not exist - квеста не существует
 	team has not joined this quest - команда не присоединилась к квесту
@@ -188,7 +188,7 @@ tip_number - номер использованной подсказки [1, 2]
 message - ответ сервера
 	empty request - не передано не одного параметра
 	missing key - отсутствует login, quest_id, task_number или tip_number
-	invalid types - login, quest_id не строки
+	invalid types - login, quest_id, task_number, tip_number не строки
 	team does not exist - команды не существует
 	quest does not exist - квеста не существует
 	team has not joined this quest - команда не присоединилась к квесту
@@ -198,3 +198,33 @@ message - ответ сервера
 	tip has already used - подсказка уже была использована
 	need to use previous tip - обращение к подсказке, когда не использована предыдущая
 	ok - всё хорошо
+
+=========================
+Возвращает текущее состояние для команды
+
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":\"0\",\"tip_number\":\"1\"}" http://127.0.0.1:5000/api/v1.0/useTip
+/api/v1.0/useTip
+{
+	'login': login,
+}
+----------
+{
+	'message': message,
+	'quest_id': quest_id,
+	'times': times,
+	'times_complete': times_complete,
+	'step': step,
+	'time_now': time_now
+}
+message - ответ сервера
+	empty request - не передано не одного параметра
+	missing key - отсутствует login
+	invalid types - login не строки
+	team does not exist - команды не существует
+	ok - всё хорошо
+Остальные параметры возвращаются в случае, если команда подала заявку на квест
+	quest_id - ID квеста, в котором команда принимает участие
+	times - массив секунд, время, в которое команда ответила верно на соответствующее задание
+	times_complete - массив секунд, время, за которое команда решила соответсвующее задание(разница между соседними ячейками в times)
+	step - номер задачи, которую решают участники в данные момент
+	time_now - время в секундах на сервере. Это решает проблему возможных различных часовых поясов на девайсах юзеров и для понимания, сколько команда сидит над заданием

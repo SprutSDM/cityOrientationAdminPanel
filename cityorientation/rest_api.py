@@ -1,7 +1,8 @@
 from cityorientation import app, db_teams, db_quests, db_templates, db_tasks
 from flask import request
 from flask_restful import Resource, Api
-from datetime import datetime, time
+import datetime
+import time
 
 api = Api(app)
 # Актуальная версия api
@@ -74,6 +75,8 @@ class JoinToQuest(Resource):
         if db_quests.find_one({'quest_id': req['quest_id'],
                                f'progress.{req["login"]}': {'$exists': True}}) is not None:
             return {'message': 'team has already joined'}
+        if db_teams.find_one({'login': req['login'], 'quest_id': {'$exists': False}}) is None:
+            return {'message': 'team has joined to another quest'}
 
         template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': req['quest_id']})['template_id']})
         amount_of_cp = len(template['task_list'])
@@ -86,6 +89,7 @@ class JoinToQuest(Resource):
                 'step': 0
             }
         }})
+        db_teams.update({'login': req['login']}, {'$set': {'quest_id': req['quest_id']}})
         return {'message': 'ok'}
 
 
@@ -141,7 +145,7 @@ class CompleteTask(Resource):
         if task_number < 0 or task_number >= len(times):
             return {'message': 'task_number out of range'}
 
-        delta = datetime.now() - datetime.combine(datetime.now().date(), time(0, 0))
+        delta = datetime.datetime.now() - datetime.datetime.combine(datetime.datetime.now().date(), datetime.time(0, 0))
         if int(times[task_number]) != -1:
             return {'message': 'task already complete'}
         elif task_number == 0:
@@ -209,6 +213,47 @@ class UseTip(Resource):
         return {'message': 'ok'}
 
 
+# Вовзаращет текущее состояние
+class GetState(Resource):
+    def post(self):
+        req = request.get_json()
+        ans = check_input_data(req, 'login')
+        if ans != 'ok':
+            return {'message': ans}
+        if db_teams.find_one({'login': req['login']}) is None:
+            return {'message': 'team does not exist'}
+        team = db_teams.find_one({'login': req['login']})
+        if 'quest_id' not in team:
+            return {'message': 'ok'}
+        # Если команда вступила в какой то квест, а его уже не существует, то удаляем о нём упоминание
+        if db_quests.find_one({'quest_id': req['quest_id'],
+                               f'progress.{req["login"]}': {'$exists': True}}) is None:
+            db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+            return {'message': 'ok'}
+
+        quest = db_quests.find_one(db_quests.find_one({'quest_id': req['quest_id']}))
+        if int(quest['date']) < int(time.time() // 86400):
+            db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+            return {'message': 'ok'}
+
+        if int(quest['time']) + int(quest['duration']) < (datetime.datetime.now() - datetime.datetime.combine(
+                datetime.datetime.now().date(), datetime.time(0, 0))).seconds:
+            db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+            return {'message': 'ok'}
+        progress = db_quests.find_one({'quest_id': team['quest_id']})
+        ans = {
+            'message': 'ok',
+            'quest_id': team['quest_id'],
+            'times': progress['times'],
+            'times_complete': progress['times_complete'],
+            'step': progress['step'],
+            'date_now': int(time.time() // 86400),
+            'time_now': (datetime.datetime.now() - datetime.datetime.combine(
+                datetime.datetime.now().date(), datetime.time(0, 0))).seconds
+        }
+        return ans
+
+
 api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
 api.add_resource(RenameTeam, f'/api/{version}/renameTeam')
 api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
@@ -216,3 +261,4 @@ api.add_resource(JoinToQuest, f'/api/{version}/joinToQuest')
 api.add_resource(ListOfTasks, f'/api/{version}/listOfTasks')
 api.add_resource(CompleteTask, f'/api/{version}/completeTask')
 api.add_resource(UseTip, f'/api/{version}/useTip')
+api.add_resource(GetState, f'/api/{version}/getState')
