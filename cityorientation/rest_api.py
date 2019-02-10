@@ -9,6 +9,8 @@ version = 'v1.0'
 
 # Проверяет, что переданы корректные данные
 def check_input_data(req, *args):
+    if not req:
+        return 'empty request'
     for arg in args:
         if arg not in req:
             return f"missing key '{arg}'"
@@ -50,6 +52,9 @@ class RenameTeam(Resource):
 class ListOfQuests(Resource):
     def get(self):
         list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False, 'template_id': False})]
+        for quest in list_of_quests:
+            template = db_templates.find_one({'template_id': quest['template_id']})
+            quest['amount_of_cp'] = str(len(template['task_list']))
         return {'answer': 'ok', 'list_of_quests': list_of_quests}
 
 
@@ -65,16 +70,17 @@ class JoinToQuest(Resource):
         if db_teams.find_one({'login': req['login']}) is None:
             return {'answer': 'team does not exist'}
         if db_quests.find_one({'quest_id': req['quest_id'],
-                               'progress.'+req['login']: {'$exists': True}}) is not None:
+                               f'progress.{req["login"]}': {'$exists': True}}) is not None:
             return {'answer': 'team has already joined'}
+
+        template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': req['quest_id']})['template_id']})
+        amount_of_cp = len(template['task_list'])
         db_quests.update({'quest_id': req['quest_id']}, {'$set': {
-            'progress': {
-                req['login']: {
-                    'task_list': [0, 1, 2, 3, 4, 5, 6],
-                    'times': [-1, -1, -1, -1, -1, -1],
-                    'tips': [0, 0, 0, 0, 0, 0, 0],
-                    'step': 0
-                }
+            f'progress.{req["login"]}': {
+                'personal_order': [i for i in range(amount_of_cp)],
+                'times': [-1] * amount_of_cp,
+                'tips': [0] * amount_of_cp,
+                'step': 0
             }
         }})
         return {'answer': 'ok'}
@@ -92,8 +98,9 @@ class ListOfTasks(Resource):
         if db_quests.find_one({'quest_id': req['quest_id']}) is None:
             return {'answer': 'quest does not exist'}
         template_id = db_quests.find_one({'quest_id': req['quest_id']})['template_id']
-        personal_order = db_quests.find_one({'quest_id': req['quest_id'],
-                                             'progress': {req['login']: {'$exists': True}}})['personal_order']
+        personal_order = db_quests.find_one(
+            {'quest_id': req['quest_id'],
+             f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]['personal_order']
         task_list = db_templates.find_one({'template_id': template_id})['task_list']
         ans = {'answer': 'ok', 'tasks': []}
         tasks = []

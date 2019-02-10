@@ -20,6 +20,7 @@ password - пароль команды
 	'team_name': team_name
 }
 answer - ответ сервера
+	empty request - не передано не одного параметра
 	invalid request - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
@@ -43,6 +44,7 @@ team_name - название команды
 	'answer': answer
 }
 answer - ответ сервера
+	empty request - не передано не одного параметра
 	invalid request - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
@@ -64,7 +66,8 @@ GET
 			'name': name,
 			'place': place,
 			'date': date,
-			'amount_of_cp': amount_of_cp
+			'amount_of_cp': amount_of_cp,
+			'duration': duration
 		},
 	]
 }
@@ -75,6 +78,7 @@ list_of_quests - массив квестов.
 	place - место проведения
 	date - дата проведения
 	amount_of_cp - количество контрольных точек
+	duration - продолжительность квеста
 
 =========================
 Добавляет команду к участию в квесте.
@@ -91,6 +95,7 @@ POST
 	'answer': answer
 }
 answer - ответ сервера
+	empty request - не передано не одного параметра
 	invalid request - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
 	quest does not exist - квеста не существует
@@ -101,9 +106,9 @@ answer - ответ сервера
 =========================
 Возвращает список заданий
 
-curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/getTasks
+curl.exe -H "Content-Type: application/json" -X GET -d "{\"login\":\"team1\",\"quest_id\":\"id_0\"}" http://127.0.0.1:5000/api/v1.0/listOfTasks
 GET
-/api/v1.0/getTasks
+/api/v1.0/listOfTasks
 {
 	'login': login,
 	'quest_id': quest_id
@@ -124,6 +129,7 @@ GET
 	]
 }
 answer - ответ сервера
+	empty request - не передано не одного параметра
 	invalid request - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
 	team does not exist - команды не существует
@@ -137,23 +143,3 @@ tasks - массив задач
 	time - время в минутах, в течении которого доступен этот вопрос
 	time_tips - массив из двух значений: время появления первой и второй подсказки с времени начала этой задачи
 	tips - массив из двух строк: подсказки к задаче.
-	
-=========================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
