@@ -138,38 +138,75 @@ class CompleteTask(Resource):
         times_complete = progress['times_complete']
         step = int(progress['step'])
         task_number = int(req['task_number'])
-        if 0 <= task_number < len(times):
-            delta = datetime.now() - datetime.combine(datetime.now().date(), time(0, 0))
-            if int(times[task_number]) != -1:
-                return {'message': 'task already complete'}
-            elif task_number == 0:
-                # В этом случае время прохождения первого задания - разница между текущим временем и
-                # временем запуска самого квеста
-                time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
-                times_complete[task_number] = delta.seconds
-                times[task_number] = delta.seconds - int(time_start)
-                # Обновление массивов времён прохождения и номера текущего задания(step).
-                # Берётся максимум т.к. возможна ситуация, когда придёт ответ на старое задание, и прогресс вернётся к
-                # следующему после него заданию.
-                db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
-                                 {'$set': {
-                                     f'progress.{req["login"]}.times': times,
-                                     f'progress.{req["login"]}.times_complete': times_complete,
-                                     f'progress.{req["login"]}.step': max(step, task_number + 1)
-                                 }})
-                return {'message': 'ok'}
-            else:
-                # А здесь время прохождения задания - разница между текущим временем и временем финиша предыдущего
-                times_complete[task_number] = delta.seconds
-                times[task_number] = delta.seconds - times_complete[task_number - 1]
-                db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
-                                 {'$set': {
-                                     f'progress.{req["login"]}.times': times,
-                                     f'progress.{req["login"]}.times_complete': times_complete,
-                                     f'progress.{req["login"]}.step': max(step, task_number + 1)
-                                 }})
-                return {'message': 'ok'}
-        return {'message': 'task_number out of range'}
+        if task_number < 0 or task_number >= len(times):
+            return {'message': 'task_number out of range'}
+
+        delta = datetime.now() - datetime.combine(datetime.now().date(), time(0, 0))
+        if int(times[task_number]) != -1:
+            return {'message': 'task already complete'}
+        elif task_number == 0:
+            # В этом случае время прохождения первого задания - разница между текущим временем и
+            # временем запуска самого квеста
+            time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
+            times_complete[task_number] = delta.seconds
+            times[task_number] = delta.seconds - int(time_start)
+            # Обновление массивов времён прохождения и номера текущего задания(step).
+            # Берётся максимум т.к. возможна ситуация, когда придёт ответ на старое задание, и прогресс вернётся к
+            # следующему после него заданию.
+            db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                             {'$set': {
+                                 f'progress.{req["login"]}.times': times,
+                                 f'progress.{req["login"]}.times_complete': times_complete,
+                                 f'progress.{req["login"]}.step': max(step, task_number + 1)
+                             }})
+            return {'message': 'ok'}
+        else:
+            # А здесь время прохождения задания - разница между текущим временем и временем финиша предыдущего
+            times_complete[task_number] = delta.seconds
+            times[task_number] = delta.seconds - times_complete[task_number - 1]
+            db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                             {'$set': {
+                                 f'progress.{req["login"]}.times': times,
+                                 f'progress.{req["login"]}.times_complete': times_complete,
+                                 f'progress.{req["login"]}.step': max(step, task_number + 1)
+                             }})
+            return {'message': 'ok'}
+
+
+# Сохраняет в базу данных информацию о том, что использована подсказка
+class UseTip(Resource):
+    def post(self):
+        req = request.get_json()
+        ans = check_input_data(req, 'login', 'quest_id', 'task_number', 'tip_number')
+        if ans != 'ok':
+            return {'message': ans}
+        if db_teams.find_one({'login': req['login']}) is None:
+            return {'message': 'team does not exist'}
+        if db_quests.find_one({'quest_id': req['quest_id']}) is None:
+            return {'message': 'quest does not exist'}
+        if db_quests.find_one({'quest_id': req['quest_id'],
+                               f'progress.{req["login"]}': {'$exists': True}}) is None:
+            return {'message': 'team has not joined this quest'}
+        progress = db_quests.find_one(
+            {'quest_id': req['quest_id'],
+             f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
+        tips = progress['tips']
+        task_number = int(req['task_number'])
+        tip_number = int(req['tip_number'])
+        if task_number < 0 or task_number >= len(tips):
+            return {'message': 'task_number out of range'}
+        if tip_number <= 0 or tip_number >= 3:
+            return {'message': 'tip_number out of range'}
+        if tips[task_number] >= tip_number:
+            return {'message': 'tip has already used'}
+        if tips[task_number] + 1 < tip_number:
+            return {'message': 'need to use previous tip'}
+
+        tips[task_number] = tip_number
+        db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                         {'$set': {
+                             f'progress.{req["login"]}.tips': tips}})
+        return {'message': 'ok'}
 
 
 api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
@@ -178,3 +215,4 @@ api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
 api.add_resource(JoinToQuest, f'/api/{version}/joinToQuest')
 api.add_resource(ListOfTasks, f'/api/{version}/listOfTasks')
 api.add_resource(CompleteTask, f'/api/{version}/completeTask')
+api.add_resource(UseTip, f'/api/{version}/useTip')

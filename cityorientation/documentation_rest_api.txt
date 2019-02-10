@@ -20,7 +20,7 @@ password - пароль команды
 }
 message - ответ сервера
 	empty request - не передано не одного параметра
-	invalid request - отсутствует login или password
+	missing key - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
 	ok - всё хорошо
@@ -43,7 +43,7 @@ team_name - название команды
 }
 message - ответ сервера
 	empty request - не передано не одного параметра
-	invalid request - отсутствует login или password
+	missing key - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
 	ok - всё хорошо
@@ -94,7 +94,7 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 }
 message - ответ сервера
 	empty request - не передано не одного параметра
-	invalid request - отсутствует login или quest_id
+	missing key - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
 	quest does not exist - квеста не существует
 	team does not exist - команды не существует
@@ -127,7 +127,7 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 }
 message - ответ сервера
 	empty request - не передано не одного параметра
-	invalid request - отсутствует login или quest_id
+	missing key - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
 	team does not exist - команды не существует
 	quest does not exist - квеста не существует
@@ -145,7 +145,7 @@ tasks - массив задач
 =========================
 Записывает в БД информацию о том, что введён правильный ответ
 
-curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":"\0"\}" http://127.0.0.1:5000/api/v1.0/completeTask
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":\"0\"}" http://127.0.0.1:5000/api/v1.0/completeTask
 /api/v1.0/completeTask
 {
 	'login': login,
@@ -159,11 +159,42 @@ task_number - номер решенной задачи
 }
 message - ответ сервера
 	empty request - не передано не одного параметра
-	invalid request - отсутствует login или quest_id
+	missing key - отсутствует login, quest_id или task_number
 	invalid types - login, quest_id не строки
 	team does not exist - команды не существует
 	quest does not exist - квеста не существует
 	team has not joined this quest - команда не присоединилась к квесту
 	task already complete - это задание уже решено
 	task_number out of range - обращение к несуществующей задаче
+	ok - всё хорошо
+
+=========================
+Записывает в БД информацию о том, что использована подсказка
+
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":\"0\",\"tip_number\":\"1\"}" http://127.0.0.1:5000/api/v1.0/useTip
+/api/v1.0/useTip
+{
+	'login': login,
+	'quest_id': quest_id,
+	'task_number': task_number,
+	'tip_number': tip_number
+}
+task_number - номер решенной задачи
+tip_number - номер использованной подсказки [1, 2]
+----------
+{
+	'message': message
+}
+message - ответ сервера
+	empty request - не передано не одного параметра
+	missing key - отсутствует login, quest_id, task_number или tip_number
+	invalid types - login, quest_id не строки
+	team does not exist - команды не существует
+	quest does not exist - квеста не существует
+	team has not joined this quest - команда не присоединилась к квесту
+	task already complete - это задание уже решено
+	task_number out of range - обращение к несуществующей задаче
+	tip_number out of range - номер подсказки не лежит в интервале [1, 2]
+	tip has already used - подсказка уже была использована
+	need to use previous tip - обращение к подсказке, когда не использована предыдущая
 	ok - всё хорошо
