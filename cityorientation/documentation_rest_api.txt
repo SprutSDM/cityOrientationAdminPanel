@@ -66,6 +66,7 @@ GET
 			'name': name,
 			'place': place,
 			'date': date,
+			'time': time,
 			'amount_of_cp': amount_of_cp,
 			'duration': duration
 		},
@@ -76,7 +77,8 @@ list_of_quests - массив квестов.
 	quest_id - ID квеста
 	name - название квеста
 	place - место проведения
-	date - дата проведения
+	date - дата проведения. Количество дней с начала 1970г. (Unix Time)
+	time - начало проведения в минутах.
 	amount_of_cp - количество контрольных точек
 	duration - продолжительность квеста
 

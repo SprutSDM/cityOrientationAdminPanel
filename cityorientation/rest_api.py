@@ -111,6 +111,13 @@ class ListOfTasks(Resource):
         return ans
 
 
+# Сохраняет в бд информацию о правильном вводе ответа на задачу
+class CompleteTask(Resource):
+    def post(self):
+        req = request.get_json()
+        check_input_data(req, 'login', 'quest_id', 'task_number')
+
+
 api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
 api.add_resource(RenameTeam, f'/api/{version}/renameTeam')
 api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
