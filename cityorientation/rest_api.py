@@ -136,27 +136,38 @@ class CompleteTask(Resource):
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
         times = progress['times']
         times_complete = progress['times_complete']
+        step = int(progress['step'])
         task_number = int(req['task_number'])
         if 0 <= task_number < len(times):
             delta = datetime.now() - datetime.combine(datetime.now().date(), time(0, 0))
             if int(times[task_number]) != -1:
                 return {'message': 'task already complete'}
             elif task_number == 0:
+                # В этом случае время прохождения первого задания - разница между текущим временем и
+                # временем запуска самого квеста
                 time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
                 times_complete[task_number] = delta.seconds
                 times[task_number] = delta.seconds - int(time_start)
+                # Обновление массивов времён прохождения и номера текущего задания(step).
+                # Берётся максимум т.к. возможна ситуация, когда придёт ответ на старое задание, и прогресс вернётся к
+                # следующему после него заданию.
                 db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                                  {'$set': {
                                      f'progress.{req["login"]}.times': times,
-                                     f'progress.{req["login"]}.times_complete': times_complete}})
+                                     f'progress.{req["login"]}.times_complete': times_complete,
+                                     f'progress.{req["login"]}.step': max(step, task_number + 1)
+                                 }})
                 return {'message': 'ok'}
             else:
+                # А здесь время прохождения задания - разница между текущим временем и временем финиша предыдущего
                 times_complete[task_number] = delta.seconds
                 times[task_number] = delta.seconds - times_complete[task_number - 1]
                 db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                                  {'$set': {
                                      f'progress.{req["login"]}.times': times,
-                                     f'progress.{req["login"]}.times_complete': times_complete}})
+                                     f'progress.{req["login"]}.times_complete': times_complete,
+                                     f'progress.{req["login"]}.step': max(step, task_number + 1)
+                                 }})
                 return {'message': 'ok'}
         return {'message': 'task_number out of range'}
 
