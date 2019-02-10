@@ -1,6 +1,7 @@
 from cityorientation import app, db_teams, db_quests, db_templates, db_tasks
 from flask import request
-from flask_restful import Resource,  Api
+from flask_restful import Resource, Api
+from datetime import datetime, time
 
 api = Api(app)
 # Актуальная версия api
@@ -25,12 +26,12 @@ class LoginTeam(Resource):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'password')
         if ans != 'ok':
-            return {'answer': ans}
+            return {'message': ans}
 
         team = db_teams.find_one({'login': req['login'], 'password': req['password']})
         if team is None:
-            return {'answer': 'team does not exist'}
-        return {'answer': 'ok', 'team_name': team['team_name']}
+            return {'message': 'team does not exist'}
+        return {'message': 'ok', 'team_name': team['team_name']}
 
 
 # Изменяет название команды
@@ -39,23 +40,24 @@ class RenameTeam(Resource):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'team_name')
         if ans != 'ok':
-            return {'answer': ans}
+            return {'message': ans}
 
         team = db_teams.find_one({'login': req['login']})
         if team is None:
-            return {'answer': 'team does not exist'}
+            return {'message': 'team does not exist'}
         db_teams.update({'login': req['login']}, {'$set': {'team_name': req['team_name']}})
-        return {'answer': 'ok'}
+        return {'message': 'ok'}
 
 
 # Возвращает список квестов
 class ListOfQuests(Resource):
     def post(self):
-        list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False, 'template_id': False})]
+        list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False})]
         for quest in list_of_quests:
             template = db_templates.find_one({'template_id': quest['template_id']})
             quest['amount_of_cp'] = str(len(template['task_list']))
-        return {'answer': 'ok', 'list_of_quests': list_of_quests}
+            quest.pop('template_id')
+        return {'message': 'ok', 'list_of_quests': list_of_quests}
 
 
 # Принять участие в Квесте
@@ -64,14 +66,14 @@ class JoinToQuest(Resource):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'quest_id')
         if ans != 'ok':
-            return {'answer': ans}
+            return {'message': ans}
         if db_quests.find_one({'quest_id': req['quest_id']}) is None:
-            return {'answer': 'quest does not exist'}
+            return {'message': 'quest does not exist'}
         if db_teams.find_one({'login': req['login']}) is None:
-            return {'answer': 'team does not exist'}
+            return {'message': 'team does not exist'}
         if db_quests.find_one({'quest_id': req['quest_id'],
                                f'progress.{req["login"]}': {'$exists': True}}) is not None:
-            return {'answer': 'team has already joined'}
+            return {'message': 'team has already joined'}
 
         template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': req['quest_id']})['template_id']})
         amount_of_cp = len(template['task_list'])
@@ -79,11 +81,12 @@ class JoinToQuest(Resource):
             f'progress.{req["login"]}': {
                 'personal_order': [i for i in range(amount_of_cp)],
                 'times': [-1] * amount_of_cp,
+                'times_complete': [-1] * amount_of_cp,
                 'tips': [0] * amount_of_cp,
                 'step': 0
             }
         }})
-        return {'answer': 'ok'}
+        return {'message': 'ok'}
 
 
 # Возвращает список заданий
@@ -92,17 +95,20 @@ class ListOfTasks(Resource):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'quest_id')
         if ans != 'ok':
-            return {'answer': ans}
+            return {'message': ans}
         if db_teams.find_one({'login': req['login']}) is None:
-            return {'answer': 'team does not exist'}
+            return {'message': 'team does not exist'}
         if db_quests.find_one({'quest_id': req['quest_id']}) is None:
-            return {'answer': 'quest does not exist'}
+            return {'message': 'quest does not exist'}
+        if db_quests.find_one({'quest_id': req['quest_id'],
+                               f'progress.{req["login"]}': {'$exists': True}}) is None:
+            return {'message': 'team has not joined this quest'}
         template_id = db_quests.find_one({'quest_id': req['quest_id']})['template_id']
         personal_order = db_quests.find_one(
             {'quest_id': req['quest_id'],
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]['personal_order']
         task_list = db_templates.find_one({'template_id': template_id})['task_list']
-        ans = {'answer': 'ok', 'tasks': []}
+        ans = {'message': 'ok', 'tasks': []}
         tasks = []
         for pos in personal_order:
             task_id = task_list[pos]
@@ -115,7 +121,44 @@ class ListOfTasks(Resource):
 class CompleteTask(Resource):
     def post(self):
         req = request.get_json()
-        check_input_data(req, 'login', 'quest_id', 'task_number')
+        ans = check_input_data(req, 'login', 'quest_id', 'task_number')
+        if ans != 'ok':
+            return {'message': ans}
+        if db_teams.find_one({'login': req['login']}) is None:
+            return {'message': 'team does not exist'}
+        if db_quests.find_one({'quest_id': req['quest_id']}) is None:
+            return {'message': 'quest does not exist'}
+        if db_quests.find_one({'quest_id': req['quest_id'],
+                               f'progress.{req["login"]}': {'$exists': True}}) is None:
+            return {'message': 'team has not joined this quest'}
+        progress = db_quests.find_one(
+            {'quest_id': req['quest_id'],
+             f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
+        times = progress['times']
+        times_complete = progress['times_complete']
+        task_number = int(req['task_number'])
+        if 0 <= task_number < len(times):
+            delta = datetime.now() - datetime.combine(datetime.now().date(), time(0, 0))
+            if int(times[task_number]) != -1:
+                return {'message': 'task already complete'}
+            elif task_number == 0:
+                time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
+                times_complete[task_number] = delta.seconds
+                times[task_number] = delta.seconds - int(time_start)
+                db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                                 {'$set': {
+                                     f'progress.{req["login"]}.times': times,
+                                     f'progress.{req["login"]}.times_complete': times_complete}})
+                return {'message': 'ok'}
+            else:
+                times_complete[task_number] = delta.seconds
+                times[task_number] = delta.seconds - times_complete[task_number - 1]
+                db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                                 {'$set': {
+                                     f'progress.{req["login"]}.times': times,
+                                     f'progress.{req["login"]}.times_complete': times_complete}})
+                return {'message': 'ok'}
+        return {'message': 'task_number out of range'}
 
 
 api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
@@ -123,3 +166,4 @@ api.add_resource(RenameTeam, f'/api/{version}/renameTeam')
 api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
 api.add_resource(JoinToQuest, f'/api/{version}/joinToQuest')
 api.add_resource(ListOfTasks, f'/api/{version}/listOfTasks')
+api.add_resource(CompleteTask, f'/api/{version}/completeTask')

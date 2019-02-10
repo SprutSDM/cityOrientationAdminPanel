@@ -15,16 +15,16 @@ login - логин команды
 password - пароль команды
 ----------
 {
-	'answer': answer,
+	'message': message,
 	'team_name': team_name
 }
-answer - ответ сервера
+message - ответ сервера
 	empty request - не передано не одного параметра
 	invalid request - отсутствует login или password
 	invalid types - login, password не строки
 	team does not exist - команды не существует
 	ok - всё хорошо
-team_name - название команды [if answer == 'ok']
+team_name - название команды [if message == 'ok']
 
 =========================
 Изменяет нащвание команды.
@@ -39,9 +39,9 @@ login - логин команды
 team_name - название команды
 ----------
 {
-	'answer': answer
+	'message': message
 }
-answer - ответ сервера
+message - ответ сервера
 	empty request - не передано не одного параметра
 	invalid request - отсутствует login или password
 	invalid types - login, password не строки
@@ -55,7 +55,7 @@ curl.exe -H "Content-Type: application/json" -X POST http://127.0.0.1:5000/api/v
 /api/v1.0/listOfQuests
 ----------
 {
-	'answer': answer,
+	'message': message,
 	'list_of_quests':
 	[
 		{
@@ -69,13 +69,13 @@ curl.exe -H "Content-Type: application/json" -X POST http://127.0.0.1:5000/api/v
 		},
 	]
 }
-answer - 'ok' // Всегда
+message - 'ok' // Всегда
 list_of_quests - массив квестов.
 	quest_id - ID квеста
 	name - название квеста
 	place - место проведения
 	date - дата проведения. Количество дней с начала 1970г. (Unix Time)
-	time - начало проведения в минутах.
+	time - начало проведения в секундах.
 	amount_of_cp - количество контрольных точек
 	duration - продолжительность квеста
 
@@ -90,9 +90,9 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 }
 ----------
 {
-	'answer': answer
+	'message': message
 }
-answer - ответ сервера
+message - ответ сервера
 	empty request - не передано не одного параметра
 	invalid request - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
@@ -112,7 +112,7 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 }
 ----------
 {
-	'answer': answer,
+	'message': message,
 	'tasks': [
 		{
 			'task_id': task_id,
@@ -125,18 +125,45 @@ curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"
 		},
 	]
 }
-answer - ответ сервера
+message - ответ сервера
 	empty request - не передано не одного параметра
 	invalid request - отсутствует login или quest_id
 	invalid types - login, quest_id не строки
 	team does not exist - команды не существует
 	quest does not exist - квеста не существует
+	team has not joined this quest - команда не присоединилась к квесту
 	ok - всё хорошо
 tasks - массив задач
 	task_id - ID задачи
 	img - полный путь до картинки в сети (url)
 	content - основной текст задачи(вопроса)
 	answers - массив из возможных вариантов ответа. Гарантируется, что каждый ответ в нижнем регистре и без пробелов по краям
-	time - время в минутах, в течении которого доступен этот вопрос
-	time_tips - массив из двух значений: время появления первой и второй подсказки с времени начала этой задачи
+	time - время в секундах, штрафное время для пропуска задания
+	time_tips - массив из двух значений: время(в секундах) появления первой и второй подсказки с времени начала этой задачи
 	tips - массив из двух строк: подсказки к задаче.
+
+=========================
+Записывает в БД информацию о том, что введён правильный ответ
+
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":"\0"\}" http://127.0.0.1:5000/api/v1.0/completeTask
+/api/v1.0/completeTask
+{
+	'login': login,
+	'quest_id': quest_id,
+	'task_number': task_number
+}
+task_number - номер решенной задачи
+----------
+{
+	'message': message
+}
+message - ответ сервера
+	empty request - не передано не одного параметра
+	invalid request - отсутствует login или quest_id
+	invalid types - login, quest_id не строки
+	team does not exist - команды не существует
+	quest does not exist - квеста не существует
+	team has not joined this quest - команда не присоединилась к квесту
+	task already complete - это задание уже решено
+	task_number out of range - обращение к несуществующей задаче
+	ok - всё хорошо
