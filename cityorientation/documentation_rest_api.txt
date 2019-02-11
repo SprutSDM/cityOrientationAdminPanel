@@ -202,8 +202,8 @@ message - ответ сервера
 =========================
 Возвращает текущее состояние для команды
 
-curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\",\"quest_id\":\"id_0\",\"task_number\":\"0\",\"tip_number\":\"1\"}" http://127.0.0.1:5000/api/v1.0/useTip
-/api/v1.0/useTip
+curl.exe -H "Content-Type: application/json" -X POST -d "{\"login\":\"team1\"}" http://127.0.0.1:5000/api/v1.0/getState
+/api/v1.0/getState
 {
 	'login': login,
 }

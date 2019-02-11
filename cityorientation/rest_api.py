@@ -58,7 +58,7 @@ class ListOfQuests(Resource):
             template = db_templates.find_one({'template_id': quest['template_id']})
             quest['amount_of_cp'] = str(len(template['task_list']))
             quest.pop('template_id')
-        return {'message': 'ok', 'list_of_quests': list_of_quests}
+        return {'message': 'ok', 'count': len(list_of_quests), 'list_of_quests': list_of_quests}
 
 
 # Принять участие в Квесте
