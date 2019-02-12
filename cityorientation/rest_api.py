@@ -24,6 +24,7 @@ def check_input_data(req, *args):
 # Возвращает ok и team_name, если такая пара login-password существует
 class LoginTeam(Resource):
     def post(self):
+        print(request.data)
         req = request.get_json()
         ans = check_input_data(req, 'login', 'password')
         if ans != 'ok':
@@ -225,25 +226,27 @@ class GetState(Resource):
         team = db_teams.find_one({'login': req['login']})
         if 'quest_id' not in team:
             return {'message': 'ok'}
+        quest_id = team['quest_id']
         # Если команда вступила в какой то квест, а его уже не существует, то удаляем о нём упоминание
-        if db_quests.find_one({'quest_id': req['quest_id'],
+        if db_quests.find_one({'quest_id': quest_id,
                                f'progress.{req["login"]}': {'$exists': True}}) is None:
             db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
             return {'message': 'ok'}
 
-        quest = db_quests.find_one(db_quests.find_one({'quest_id': req['quest_id']}))
-        if int(quest['date']) < int(time.time() // 86400):
-            db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-            return {'message': 'ok'}
-
-        if int(quest['time']) + int(quest['duration']) < (datetime.datetime.now() - datetime.datetime.combine(
-                datetime.datetime.now().date(), datetime.time(0, 0))).seconds:
-            db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-            return {'message': 'ok'}
-        progress = db_quests.find_one({'quest_id': team['quest_id']})
+        quest = db_quests.find_one(db_quests.find_one({'quest_id': quest_id}))
+        #if int(quest['date']) < int(time.time() // 86400):
+        #    db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+        #    return {'message': 'ok'}
+        #
+        #if int(quest['time']) + int(quest['duration']) < (datetime.datetime.now() - datetime.datetime.combine(
+        #        datetime.datetime.now().date(), datetime.time(0, 0))).seconds:
+        #    db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+        #    return {'message': 'ok'}
+        progress = db_quests.find_one({'quest_id': team['quest_id']})['progress'][req['login']]
         ans = {
             'message': 'ok',
             'quest_id': team['quest_id'],
+            'team_name': team['team_name'],
             'times': progress['times'],
             'times_complete': progress['times_complete'],
             'step': progress['step'],
