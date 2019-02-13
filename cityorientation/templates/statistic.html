@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-grid mdl-grid center-all">
+    <div style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
+        <!-- Class "mdl-data-table-selectable" -->
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+      <thead>
+
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Начало</th>
+          <th>Уровень-1</th>
+          <th>Уровень-2</th>
+          <th>Уровень-3</th>
+          <th>Уровень-4</th>
+          <th>Уровень-5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows -->
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['hint'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['place'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['duration'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['answer'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['tip_1'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+             </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['tip_2'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+             </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-grid mdl-grid center-all">
+        <!-- Class "mdl-data-table-selectable" -->
+    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+      <thead>
+
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Команда</th>
+          <th>Логин</th>
+          <th>Пароль</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows -->
+        {% for teams in teams %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">{{ teams['name'] }}</td>
+          <td>{{ teams['login'] }}</td>
+          <td>{{ teams['password'] }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+    </div>
+</div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+      <a href="addTeam"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Добавить команду
+      </button></a>
+      <!-- Accent-colored raised button -->
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Удалить выделенные
+      </button>
+      <!-- Accent-colored raised button with ripple -->
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Изменить выделенные
+      </button>
+    </div>
+
+</div>
+{% endblock content %}
+
+
+
+
+
+

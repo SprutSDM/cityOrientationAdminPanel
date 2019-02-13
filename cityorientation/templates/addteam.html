@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-grid mdl-grid">
+
+  <div class="mdl-cell mdl-cell--4-col">
+  	<big>Название команды</big>
+		<form action="#">
+		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+		    <input class="mdl-textfield__input" type="text" id="sample3">
+		    <label class="mdl-textfield__label" for="sample3">Введите имя команды...</label>
+		  </div>
+		</form>
+		<big>Контакты</big>
+		<form action="#">
+		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+		    <input class="mdl-textfield__input" type="text" id="sample3">
+		    <label class="mdl-textfield__label" for="sample3">Телефон, эл.ящики...</label>
+		  </div>
+		</form>
+		<a href="addteam"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Добавить
+    </button></a>
+   </div>
+  </div>
+
+
+{% endblock content %}

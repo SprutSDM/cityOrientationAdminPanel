@@ -1,0 +1,99 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-grid mdl-grid">
+    <div style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
+        <!-- Class "mdl-data-table-selectable" -->
+    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+      <thead>
+
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Название</th>
+          <th>Вопрос</th>
+          <th>Изображение</th>
+          <th>Ответы</th>
+          <th>Подсказка1</th>
+          <th>Подсказка2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows -->
+        {% for tasks in tasks %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['name'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['question'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['picture'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['answer'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+            </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['tip_1'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+             </form>
+          </td>
+          <td>
+              <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['tip_2'] }}</textarea>
+                <label class="mdl-textfield__label" for="sample5"></label>
+              </div>
+             </form>
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+    </div>
+
+    <div class="mdl-cell mdl-cell--5-col" style="margin: 0 auto;">
+          <!-- Colored raised button -->
+      <a href="addtask"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Добавить задание
+      </button></a>
+      <!-- Accent-colored raised button -->
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Удалить выделенные
+      </button>
+      <!-- Accent-colored raised button with ripple -->
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Изменить выделенное
+      </button>
+    </div>
+
+</div>
+{% endblock content %}
+
+
+
+
+
+
