@@ -2,24 +2,31 @@
 {% block content %}
 <div class="content-grid mdl-grid">
     {% for templates in templates %}
-        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" id="{{ key }}">
-            <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/quest_images/title.png') center / cover;">
-                <h2 class="mdl-card__title-text">{{ templates['name'] }}</h2>
-            </div>
-            <div class="mdl-card__supporting-text">
-                Место проведения: {{ templates['place'] }}
-                <br>
-                Количество КП: {{ templates['amount_of_cp'] }}
-                <br>
-                Продолжительность: {{ templates['duration'] }}
-            </div>
-
-            <div class="mdl-card__actions mdl-card--border" style="display: flex;">
-                <div class="mdl-layout-spacer"></div>
-                <a href="/templatesEditor"><button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
-                                                id="remove_button ">Редактировать</button></a>
-            </div>
+    <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+        <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/quest_images/title.png') center / cover;">
+            <h2 class="mdl-card__title-text">{{ templates['name'] }}</h2>
         </div>
-
-    {% endfor %}
+        <div class="mdl-card__supporting-text">
+            Место проведения: {{ templates['place'] }}
+            <br>
+            Количество КП: {{ templates['amount_of_cp'] }}
+            <br>
+            Продолжительность: {{ templates['duration'] }}
+        </div>
+        <div class="mdl-card__actions mdl-card--border" style="display: flex;">
+            <div class="mdl-layout-spacer"></div>
+            <a href="/templatesEditor"><button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
+                id="remove_button ">Редактировать</button></a>
+            <a href="#"><button style="margin-left: 10px" class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
+                id="remove_button ">удалить</button></a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<div style="position: fixed; bottom: 0; right: 0; margin: 30px; z-index: 1;">
+    <a href="/templatesEditor"><button class="add_button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab mdl-button--accent mdl-shadow--6dp"
+        id="upload-file-btn">
+    <i class="material-icons">add</i>
+    </button></a>
+</div>
 {% endblock content %}

@@ -2,39 +2,35 @@
 {% block content %}
 <div class="content-grid mdl-grid">
     {% for quest in quests %}
-        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" id="{{ key }}">
-            <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/quest_images/title.png') center / cover;">
-                <h2 class="mdl-card__title-text">{{ quest['name'] }}</h2>
-            </div>
-            <div class="mdl-card__supporting-text">
-                Место проведения: {{ quest['place'] }}
-                <br>
-                Количество КП: {{ quest['amount_of_cp'] }}
-                <br>
-                Время старта: {{ quest['date'] }}
-            </div>
-
-            <div class="mdl-card__actions mdl-card--border" style="display: flex;">
-                <a href="/statistic">
-                <button class="save_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
-                </a>
-                <div class="mdl-layout-spacer"></div>
-                {% if quest['complete'] == False %}
-                <a href="questEditor"><button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
-                        id="remove_button">Редактировать</button></a>
-                {% else %}
-                    <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
-                        id="remove_button">Удалить</button>
-                {% endif %}
-            </div>
+    <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+        <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/quest_images/title.png') center / cover;">
+            <h2 class="mdl-card__title-text">{{ quest['name'] }}</h2>
         </div>
+        <div class="mdl-card__supporting-text">
+            Место проведения: {{ quest['place'] }}
+            <br>
+            Количество КП: {{ quest['amount_of_cp'] }}
+            <br>
+            Время старта: {{ quest['date'] }}
+            <br>
+            Продолжительность: {{ quest['duration'] }}
+        </div>
+        <div class="mdl-card__actions mdl-card--border" style="display: flex;">
+            <a href="/statistic"><button class="save_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
+            </a>
+            <div class="mdl-layout-spacer"></div>
+            {% if quest['complete'] == False %}
+            <a href="questEditor"><button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect" id="remove_button">Редактировать</button></a>
+            {% else %}
+            <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect" id="remove_button">Удалить</button>
+            {% endif %}
+        </div>
+    </div>
     {% endfor %}
     <div style="position: fixed; bottom: 0; right: 0; margin: 30px; z-index: 1;">
-        <a href="addQuest"><button class="add_button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab mdl-button--accent mdl-shadow--6dp"
-                id="upload-file-btn">
-            <i class="material-icons">add</i>
+        <a href="addQuest"><button class="add_button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--fab mdl-button--accent mdl-shadow--6dp" id="upload-file-btn">
+        <i class="material-icons">add</i>
         </button></a>
     </div>
 </div>
-<script src="static/js/alerts.js"></script>
 {% endblock content %}

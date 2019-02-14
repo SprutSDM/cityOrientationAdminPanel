@@ -1,74 +1,77 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-grid mdl-grid center-all">
-    <div style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
-        <!-- Class "mdl-data-table-selectable" -->
-    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-      <thead>
-
-        <tr>
-          <th class="mdl-data-table__cell--non-numeric">Начало</th>
-          <th>Уровень-1</th>
-          <th>Уровень-2</th>
-          <th>Уровень-3</th>
-          <th>Уровень-4</th>
-          <th>Уровень-5</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Rows -->
-        <tr>
-          <td class="mdl-data-table__cell--non-numeric">
-            <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['hint'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-            </form>
-          </td>
-          <td>
-            <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['place'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-            </form>
-          </td>
-          <td>
-            <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['duration'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-            </form>
-          </td>
-          <td>
-              <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['answer'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-            </form>
-          </td>
-          <td>
-              <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['tip_1'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-             </form>
-          </td>
-          <td>
-              <form action="#">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ statistic['tip_2'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-             </form>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="content-grid mdl-grid">
+    {% for kvest in kvest %}
+    <div class="mdl-cell mdl-cell--3-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+        <div class="mdl-card__title">
+            <h1 class="mdl-card__title-text">{{ kvest ['name'] }}</h1>
+        </div>
+        <div class="mdl-card__supporting-text">
+            Место проведения: {{ kvest['place'] }}
+            <br>
+            Дата: {{ kvest['date'] }}
+            <br>
+            Продолжительность: {{ kvest['duration'] }}
+        </div>
+    </div>
+    {% endfor %}
+    <!— Class "mdl-data-table-selectable" —>
+    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+        <div class="mdl-card__supporting-text1" style="overflow:auto;">
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                <thead>
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric">Команда</th>
+                        <th>КП1</th>
+                        <th>КП2</th>
+                        <th>КП3</th>
+                        <th>КП4</th>
+                        <th>КП5</th>
+                        <th>КП6</th>
+                        <th>КП7</th>
+                        <th>КП8</th>
+                        <th>КП9</th>
+                        <th>КП10</th>
+                        <th>КП11</th>
+                        <th>КП12</th>
+                        <th>КП13</th>
+                        <th>КП14</th>
+                        <th>КП15</th>
+                        <th>КП16</th>
+                        <th>КП17</th>
+                        <th>КП18</th>
+                        <th>КП19</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!— Rows —>
+                    {% for statistic in statistic %}
+                    <tr>
+                        <td>{{ statistic['name'] }}</td>
+                        <td>{{ statistic['time1'] }} <br> {{ statistic['hint1'] }}</td>
+                        <td>{{ statistic['time2'] }} <br> {{ statistic['hint2'] }}</td>
+                        <td>{{ statistic['time3'] }} <br> {{ statistic['hint3'] }}</td>
+                        <td>{{ statistic['time4'] }} <br> {{ statistic['hint4'] }}</td>
+                        <td>{{ statistic['time5'] }} <br> {{ statistic['hint5'] }}</td>
+                        <td>{{ statistic['time6'] }} <br> {{ statistic['hint6'] }}</td>
+                        <td>{{ statistic['time7'] }} <br> {{ statistic['hint7'] }}</td>
+                        <td>{{ statistic['time8'] }} <br> {{ statistic['hint8'] }}</td>
+                        <td>{{ statistic['time9'] }} <br> {{ statistic['hint9'] }}</td>
+                        <td>{{ statistic['time10'] }} <br> {{ statistic['hint10'] }}</td>
+                        <td>{{ statistic['time11'] }} <br> {{ statistic['hint11'] }}</td>
+                        <td>{{ statistic['time12'] }} <br> {{ statistic['hint12'] }}</td>
+                        <td>{{ statistic['time13'] }} <br> {{ statistic['hint13'] }}</td>
+                        <td>{{ statistic['time14'] }} <br> {{ statistic['hint14'] }}</td>
+                        <td>{{ statistic['time15'] }} <br> {{ statistic['hint15'] }}</td>
+                        <td>{{ statistic['time16'] }} <br> {{ statistic['hint16'] }}</td>
+                        <td>{{ statistic['time17'] }} <br> {{ statistic['hint17'] }}</td>
+                        <td>{{ statistic['time18'] }} <br> {{ statistic['hint18'] }}</td>
+                        <td>{{ statistic['time19'] }} <br> {{ statistic['hint19'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock content %}

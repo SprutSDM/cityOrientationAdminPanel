@@ -1,94 +1,83 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--4-col">
-    <div class="mdl-card__supporting-text">
-    {% for editor in editor %}
-                <h5>Название:</h5>
-                 <form action="#">
-                  <div class="mdl-textfield-editor mdl-js-textfield">
+<div class="content-grid mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col mdl-card mdl-shadow--6dp" id="{{ key }}">
+        <div class="mdl-card__supporting-text">
+            {% for editor in editor %}
+            <h5>Название:</h5>
+            <form action="#">
+                <div class="mdl-textfield-editor mdl-js-textfield">
                     <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['name'] }}</textarea>
                     <label class="mdl-textfield__label" for="sample5"></label>
-                  </div>
-                </form>
-              <br>
-                <h5>Место проведения:</h5>
-                <form action="#">
-              <div class="mdl-textfield-editor mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['place'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-             </form>
-                <br>
-                <h5>Продолжительность:</h5>
-                <form action="#">
-              <div class="mdl-textfield-editor mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['duration'] }}</textarea>
-                <label class="mdl-textfield__label" for="sample5"></label>
-              </div>
-             </form>
-             {% endfor %}
-            </div>
-  </div>
-
-
-
-  <div class="mdl-cell mdl-cell--4-col">
-    <big style="margin-left: 10px">Текущие задания</big>
-    <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Вопрос</th>
-        </tr>
-      </thead>
-    <tbody>
-      {% for etasks in etasks %}
-       <tr>
-        <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
-        <td>{{ etasks['question'] }}</td>
-       </tr>
-      {% endfor %}
-     </tbody>
-       <a href="#"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Удалить
-      </button></a>
-      <small style="color: red;"> (перейдут в архив заданий)</small>
-    </table>
-  </div>
-
-
-  <div class="mdl-cell mdl-cell--4-col">
-  <big style="margin-left: 10px">Архив заданий</big>
-    <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp ">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Вопрос</th>
-        </tr>
-      </thead>
-      <tbody>
-       {% for etasks in etasks %}
-        <tr>
-          <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
-          <td>{{ etasks['question'] }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-          <a href="#"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Добавить
-      </button></a>
-      <small style="color: red;"> (перейдут в текущие задания)</small>
-    </table>
-  </div>
-
-  <div style="position: fixed; bottom: 0; right: 0; margin: 30px;">
-         <a href="#"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Сохранить
-      </button></a>
+                </div>
+            </form>
+            <br>
+            <h5>Место проведения:</h5>
+            <form action="#">
+                <div class="mdl-textfield-editor mdl-js-textfield">
+                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['place'] }}</textarea>
+                    <label class="mdl-textfield__label" for="sample5"></label>
+                </div>
+            </form>
+            <br>
+            <h5>Продолжительность:</h5>
+            <form action="#">
+                <div class="mdl-textfield-editor mdl-js-textfield">
+                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['duration'] }}</textarea>
+                    <label class="mdl-textfield__label" for="sample5"></label>
+                </div>
+            </form>
+            {% endfor %}
+        </div>
     </div>
-
+    <div class="mdl-cell mdl-cell--3-col">
+        <big style="margin-left: 10px">Текущие задания</big>
+        <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Вопрос</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etasks in etasks %}
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
+                    <td>{{ etasks['question'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="#"><button style="margin:8px;" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Удалить
+        </button></a>
+    </div>
+    <div class="mdl-cell mdl-cell--3-col">
+        <big style="margin-left: 10px">Архив заданий</big>
+        <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp ">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Вопрос</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etasks in etasks %}
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
+                    <td>{{ etasks['question'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="#"><button style="margin: 8px" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Добавить
+        </button></a>
+    </div>
 </div>
-
+<div style="position: fixed; bottom: 0; right: 0; margin: 30px;">
+    <a href="#"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    Сохранить
+    </button></a>
+</div>
 {% endblock content %}
-

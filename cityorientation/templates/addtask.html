@@ -1,37 +1,33 @@
 {% extends 'layout.html' %}
 {% block content %}
-
 <div class="content-grid mdl-grid">
-  <div class="mdl-cell mdl-cell--6-col">
-  	<big>Название задания</big>
-		<form action="#">
-		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-		    <input class="mdl-textfield__input" type="text" id="sample3">
-		    <label class="mdl-textfield__label" for="sample3">Введите название задания...</label>
-		  </div>
+    <div class="mdl-cell mdl-cell--6-col">
+        <big>Название задания</big>
+        <form action="#">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="sample3">
+                <label class="mdl-textfield__label" for="sample3">Введите название задания...</label>
+            </div>
 		</form>
-		<big>Загадка</big>
-		<form action="#">
-		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
-        <textarea class="mdl-textfield__input" name="notes" formControlName="notes" rows="7" cols="500"></textarea>
-        <label class="mdl-textfield__label" for="sample3">Описание загадки...</label>
-      </div>
-		</form>
-		<big>Примечания<small> (необязательно)</small></big>
-		<form action="#">
-		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
-        <textarea class="mdl-textfield__input" name="notes" formControlName="notes" rows="7" cols="500"></textarea>
-        <label class="mdl-textfield__label" for="sample3">Введите примечания...</label>
-      </div>
-		</form>
-		<a href="#" ><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        <big>Загадка</big>
+        <form action="#">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
+                <textarea class="mdl-textfield__input" name="notes" formControlName="notes" rows="7" cols="500"></textarea>
+                <label class="mdl-textfield__label" for="sample3">Описание загадки...</label>
+            </div>
+        </form>
+        <big>Примечания<small> (необязательно)</small></big>
+        <form action="#">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
+                <textarea class="mdl-textfield__input" name="notes" formControlName="notes" rows="7" cols="500"></textarea>
+                <label class="mdl-textfield__label" for="sample3">Введите примечания...</label>
+            </div>
+        </form>
+        <a href="#" ><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
         Сохранить
-    </button></a>
-   </div>
-
-		<div class="mdl-cell mdl-cell--4-col">
-
-		</div>
-
-  </div>
+        </button></a>
+    </div>
+    <div class="mdl-cell mdl-cell--4-col">
+    </div>
+</div>
 {% endblock content %}

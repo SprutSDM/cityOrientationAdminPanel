@@ -225,13 +225,13 @@ class GetState(Resource):
             return {'message': 'team does not exist'}
         team = db_teams.find_one({'login': req['login']})
         if 'quest_id' not in team:
-            return {'message': 'ok'}
+            return {'message': 'ok but not'}
         quest_id = team['quest_id']
         # Если команда вступила в какой то квест, а его уже не существует, то удаляем о нём упоминание
         if db_quests.find_one({'quest_id': quest_id,
                                f'progress.{req["login"]}': {'$exists': True}}) is None:
             db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-            return {'message': 'ok'}
+            return {'message': 'ok but not'}
 
         quest = db_quests.find_one(db_quests.find_one({'quest_id': quest_id}))
         #if int(quest['date']) < int(time.time() // 86400):
