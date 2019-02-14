@@ -2,33 +2,39 @@
 {% block content %}
 <div class="content-grid mdl-grid center-all">
     <!-- Class "mdl-data-table-selectable" -->
-    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp center-all">
         <thead>
             <tr>
                 <th class="mdl-data-table__cell--non-numeric">Команда</th>
                 <th>Логин</th>
                 <th>Пароль</th>
+                <th>Действие</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Rows -->
             {% for teams in teams %}
-            <tr>
+            <tr class="tr_check" id="{{ teams['login'] }}">
                 <td class="mdl-data-table__cell--non-numeric">{{ teams['name'] }}</td>
                 <td>{{ teams['login'] }}</td>
                 <td>{{ teams['password'] }}</td>
+                <td>
+                    <form action="removeTeam/{{ teams['login'] }}" method="POST" style="display: inline-block">
+                        <button class="mdl-button mdl-js-button">Удалить</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
+            <tr>
+                <td colspan="4">
+                    <form action="addTeam" method="POST">
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                        style="width: 100%;text-align: center;">
+                            Добавить
+                        </button>
+                    </form>
+                </td>
+            </tr>
         </tbody>
     </table>
-</div>
-<div class="mdl-cell mdl-cell--12-col">
-    <a href="addTeam"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    Удалить выделенные
-    </button></a>
-    <!-- Accent-colored raised button -->
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    Добавить
-    </button>
 </div>
 {% endblock content %}

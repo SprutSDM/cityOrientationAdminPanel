@@ -9,6 +9,6 @@ db_quests = db['quests']
 db_teams = db['teams']
 db_templates = db['templates']
 db_tasks = db['tasks']
-
+db_stat = db['stat']
 
 from cityorientation import routes, rest_api, settings

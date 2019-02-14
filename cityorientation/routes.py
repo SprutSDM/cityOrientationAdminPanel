@@ -1,5 +1,6 @@
-from cityorientation import app
+from cityorientation import app, db_teams, db_stat
 from flask import render_template, redirect, url_for, request, send_from_directory
+from random import shuffle
 
 
 @app.route('/')
@@ -43,16 +44,27 @@ def add_task():
 
 @app.route('/listOfTeams', methods=['GET'])
 def list_of_teams():
-    teams = [
-        {'name': 'Команда1', 'login': 'team1', 'password': '1234'},
-        {'name': 'Команда2', 'login': 'team2', 'password': '1234'},
-        {'name': 'Команда3', 'login': 'team3', 'password': '1234'}
-    ]
+    teams = db_teams.find({}, {'_id': False})
     return render_template('listOfTeams.html', teams=teams, title="Команды")
 
 
-@app.route('/addTeam', methods=['GET'])
+@app.route('/addTeam', methods=['POST'])
 def add_team():
+    num_team = int(db_stat.find_one({'stat': 'stat'})['num_team'])
+    password = [e for e in 'abcdefghtyuipoi1234567890']
+    shuffle(password)
+    password = ''.join(password[:6])
+    team = {'login': f'team{num_team}',
+            'password': password,
+            'name': f'Team {num_team}'}
+    db_stat.update({'stat': 'stat'}, {'$set': {'num_team': str(num_team + 1)}})
+    db_teams.insert(team)
+    return redirect(url_for('list_of_teams'))
+
+
+@app.route('/removeTeam/<login>', methods=['POST'])
+def remove_team(login: str):
+    db_teams.remove({'login': login})
     return redirect(url_for('list_of_teams'))
 
 
