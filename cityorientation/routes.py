@@ -1,11 +1,19 @@
-from cityorientation import app, db_teams, db_stat
+from cityorientation import app, db_teams, db_tasks, db_stat
 from flask import render_template, redirect, url_for, request, send_from_directory
 from random import shuffle
+from werkzeug.utils import secure_filename
+import os
 
 
 @app.route('/')
 def home():
     return redirect(url_for('list_of_quests'))
+
+
+@app.route('/quest_images/<image>')
+def get_image(image):
+    uploads = os.path.join(app.config['UPLOAD_FOLDER'])
+    return send_from_directory(directory=uploads, filename=image)
 
 
 @app.route('/listOfQuests', methods=['GET'])
@@ -29,17 +37,79 @@ def remove_quest():
 
 @app.route('/listOfTasks', methods=['GET'])
 def list_of_tasks():
-    tasks = [
-        {'name': 'Квест1', 'question': '123456', 'picture': 'picture.jpg', 'answer': '1234', 'tip_1': 'Нqefwт', 'tip_2': 'П3424123414234'},
-        {'name': 'Квест2', 'question': '789456123', 'picture': '', 'answer': '2345', 'tip_1': 'На зqwef нет', 'tip_2': '1234, 1234'},
-        {'name': 'Квест3', 'question': 'qewmfqwkljefnlqkwjebflqkjwenflkqwjneflkqjwenflkqjwefqwefqw', 'picture': 'picture.jpg', 'answer': '3465', 'tip_1': 'f4f32', 'tip_2': 'f234f'}
-    ]
+    tasks = [*db_tasks.find({})]
+    for task in tasks:
+        task['answers'] = ','.join(task['answers'])
+        task['tip_1'] = task['tips'][0]
+        task['tip_2'] = task['tips'][1]
+
     return render_template('listOfTasks.html', tasks=tasks, title="Задания")
 
 
-@app.route('/addTask', methods=['GET'])
+@app.route('/removeTask/<task_id>', methods=['GET'])
+def remove_task(task_id):
+    db_tasks.remove({'task_id': task_id})
+    return redirect(url_for('list_of_tasks'))
+
+
+@app.route('/addTask', methods=['POST'])
 def add_task():
-    return render_template('addtask.html', title="Добавление нового задания")
+    num_tasks = int(db_stat.find_one({'stat': 'stat'})['num_tasks'])
+    db_stat.update({'stat': 'stat'}, {'$set': {'num_tasks': str(num_tasks + 1)}})
+    db_tasks.insert({
+        'task_id': f'task_id_{num_tasks}',
+        'name': '',
+        'content': '',
+        'img': '',
+        'answers': [],
+        'tips': ['', '']
+    })
+    return redirect(url_for('list_of_tasks'))
+
+
+@app.route('/saveTask', methods=['POST'])
+def save_task():
+    form = request.form
+    task = {
+        'task_id': '',
+        'name': '',
+        'content': '',
+        'img': '',
+        'answers': [],
+        'tips': ['', '']
+    }
+    if 'task_id' not in form:
+        return redirect(url_for('list_of_tasks'))
+    task_id = form['task_id']
+    task['task_id'] = task_id
+    if 'name' in form:
+        task['name'] = form['name']
+    if 'content' in form:
+        task['content'] = form['content']
+    if 'img' in form and form['img'] != '':
+        task['img'] = form['img']
+    elif 'img' not in form and 'last_img' in form: # Если была нажата кнопка удалить
+        if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], form['last_img'])):
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], form['last_img']))
+    if len(request.files) != 0:
+        file = request.files.to_dict()['file']
+        sfname = secure_filename(file.filename)
+        ftype = sfname.split('.')[-1]
+        if ftype in ['png', 'jpg']:
+            img = f'{task_id}.{ftype}'
+            task['img'] = img
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], img))
+    if 'answers' in form:
+        task['answers'] = [elem.strip() for elem in form['answers'].split(',')]
+    if 'tip_1' in form:
+        task['tips'][0] = form['tip_1']
+    if 'tip_2' in form:
+        task['tips'][1] = form['tip_2']
+    print(task)
+
+    db_tasks.update({'task_id': task_id}, {'$set': task})
+
+    return redirect(url_for('list_of_tasks'))
 
 
 @app.route('/listOfTeams', methods=['GET'])
@@ -106,6 +176,5 @@ def quest_editor():
     etasks = [
         {'name': 'Квест1', 'question': '12341234', 'answer': 'wergwfv'},
         {'name': 'Квест2', 'question': 'qwefqwefз?', 'answer': 'wergwbw'},
-        {'name': 'Квест3', 'question': 'gertgwerg?', 'answer': 'wbfbw'}
-    ]
+        {'name': 'Квест3', 'question': 'gertgwerg?', 'answer': 'wbfbw'}]
     return render_template('questEditor.html', editor=editor, etasks=etasks, title="Редактор квеста")

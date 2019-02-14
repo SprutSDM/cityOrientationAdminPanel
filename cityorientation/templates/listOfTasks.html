@@ -1,88 +1,103 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-grid mdl-grid center-all">
-    <div style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
-        <!-- Class "mdl-data-table-selectable" -->
-        <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-            <thead>
-                <tr>
-                    <th class="mdl-data-table__cell--non-numeric" style="text-align:  left;">Название</th>
-                    <th style="text-align:  left;">Вопрос</th>
-                    <th style="text-align:  left;">Изображение</th>
-                    <th style="text-align:  left;">Ответы</th>
-                    <th style="text-align:  left;">Подсказка1</th>
-                    <th style="text-align:  left;">Подсказка2</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows -->
-                {% for tasks in tasks %}
-                <tr>
+<div class="content-grid mdl-grid center-all" style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
+    <!-- Class "mdl-data-table-selectable" -->
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+        <thead>
+            <tr>
+                <th class="mdl-data-table__cell--non-numeric" style="text-align:  left;">Название</th>
+                <th style="text-align: left;">Вопрос</th>
+                <th style="text-align: left;">Изображение</th>
+                <th style="text-align: left;">Ответы</th>
+                <th style="text-align: left;">Подсказка №1</th>
+                <th style="text-align: left;">Подсказка №2</th>
+                <td style="text-align: left;">Действие</td>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows -->
+            {% for task in tasks %}
+            <tr>
+                <form action="saveTask" method="POST" enctype="multipart/form-data">
+                    <input name="task_id" value="{{ task['task_id'] }}" style="display: none">
                     <td class="mdl-data-table__cell--non-numeric" style="width: 100px;">
-                        <form action="#">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5"  >{{ tasks['name'] }}</textarea>
-                                <label class="mdl-textfield__label" for="sample5"></label>
-                            </div>
-                        </form>
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <textarea name="name" class="mdl-textfield__input" type="text" rows="3" id="name">{{ task['name'] }}</textarea>
+                            <label class="mdl-textfield__label" for="name"></label>
+                        </div>
                     </td>
                     <td>
-                        <form action="#">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['question'] }}</textarea>
-                                <label class="mdl-textfield__label" for="sample5"></label>
-                            </div>
-                        </form>
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <textarea name="content" class="mdl-textfield__input" type="text" rows="3" id="content">{{ task['content'] }}</textarea>
+                            <label class="mdl-textfield__label" for="content"></label>
+                        </div>
                     </td>
-                    <td style="text-align:left;"> <a href="" style="color:grey"> {{ tasks['picture'] }}</a><br>
-                        {% if tasks['picture'] == "" %}
-                        <a href="addtask"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-                        Добавить
-                        </button></a>
+                    <td style="text-align:left;">
+                        {% if task['img'] == "" %}
+                            <a style="color:grey" id="file-name-{{ task['task_id'] }}"></a><br>
+                            <label for="uploaded-file-{{ task['task_id'] }}"
+                                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                                Добавить
+                            </label>
+                            <input id="uploaded-file-{{ task['task_id'] }}"
+                                   type="file" name="file" id="uploaded-file-{{ task['task_id'] }}"
+                                   onchange="getFileName('{{ task['task_id'] }}')" style="display: none">
                         {% else %}
-                        <a href="addtask"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-                        Удалить
-                        </button></a>
+                            <input name="img" id="img-holder-{{ task['task_id'] }}" value="{{ task['img'] }}" style="display: none">
+                            <input name="last_img" id="last-img-holder-{{ task['task_id'] }}" value="{{ task['img'] }}" style="display: none">
+                            <a href="{{ 'quest_images/' + task['img'] }}" style="color:grey">Посмотреть</a><br>
+                            <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                onclick="removeImgHolder('{{ task['task_id'] }}')">
+                                Удалить
+                            </button>
                         {% endif %}
                     </td>
                     <td>
-                        <form action="#">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['answer'] }}</textarea>
-                                <label class="mdl-textfield__label" for="sample5"></label>
-                            </div>
-                        </form>
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <textarea name="answers" class="mdl-textfield__input" type="text" rows="3" id="answers">{{ task['answers'] }}</textarea>
+                            <label class="mdl-textfield__label" for="answers"></label>
+                        </div>
                     </td>
                     <td>
-                        <form action="#">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['tip_1'] }}</textarea>
-                                <label class="mdl-textfield__label" for="sample5"></label>
-                            </div>
-                        </form>
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <textarea name="tip_1" class="mdl-textfield__input" type="text" rows="3" id="tip_1">{{ task['tip_1'] }}</textarea>
+                            <label class="mdl-textfield__label" for="tip_1"></label>
+                        </div>
                     </td>
                     <td>
-                        <form action="#">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <textarea class="mdl-textfield__input" type="text" rows= "3" id="sample5" >{{ tasks['tip_2'] }}</textarea>
-                                <label class="mdl-textfield__label" for="sample5"></label>
-                            </div>
-                        </form>
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <textarea name="tip_2" class="mdl-textfield__input" type="text" rows="3" id="tip_2">{{ task['tip_2'] }}</textarea>
+                            <label class="mdl-textfield__label" for="tip_2"></label>
+                        </div>
                     </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mdl-cell mdl-cell--12-col">
-            <!-- Colored raised button -->
-            <a href="addtask"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-            Удалить выделенные
-            </button></a>
-            <!-- Accent-colored raised button -->
-            <button style="margin-left: 10px" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                    <td>
+                        <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                            Сохранить
+                        </button>
+                        <br>
+                        <a href="removeTask/{{ task['task_id'] }}" style="color:gray; text-align:center;">Удалить</a>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="mdl-cell mdl-cell--12-col">
+    <form action="addTask" method="POST">
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
             Добавить задание
-            </button>
-        </div>
-    </div>
+        </button>
+    </form>
 </div>
+</div>
+<script>
+    function getFileName(id) {
+        var file = document.getElementById('uploaded-file-' + id).value;
+        file = file.replace(/\\/g, '/').split('/').pop();
+        document.getElementById('file-name-' + id).innerHTML = file;
+    }
+    function removeImgHolder(id) {
+        var file = document.getElementById('img-holder-' + id).name = ''
+    }
+</script>
 {% endblock content %}
