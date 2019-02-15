@@ -20,14 +20,14 @@
             <tr>
                 <form action="saveTask" method="POST" enctype="multipart/form-data">
                     <input name="task_id" value="{{ task['task_id'] }}" style="display: none">
-                    <td class="mdl-data-table__cell--non-numeric" style="width: 100px;">
-                        <div class="mdl-textfield mdl-js-textfield">
+                    <td style="width: 100px;">
+                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
                             <textarea name="name" class="mdl-textfield__input" type="text" rows="3" id="name">{{ task['name'] }}</textarea>
                             <label class="mdl-textfield__label" for="name"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield">
+                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
                             <textarea name="content" class="mdl-textfield__input" type="text" rows="3" id="content">{{ task['content'] }}</textarea>
                             <label class="mdl-textfield__label" for="content"></label>
                         </div>
@@ -53,19 +53,19 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield">
+                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
                             <textarea name="answers" class="mdl-textfield__input" type="text" rows="3" id="answers">{{ task['answers'] }}</textarea>
                             <label class="mdl-textfield__label" for="answers"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield">
+                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
                             <textarea name="tip_1" class="mdl-textfield__input" type="text" rows="3" id="tip_1">{{ task['tip_1'] }}</textarea>
                             <label class="mdl-textfield__label" for="tip_1"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield">
+                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
                             <textarea name="tip_2" class="mdl-textfield__input" type="text" rows="3" id="tip_2">{{ task['tip_2'] }}</textarea>
                             <label class="mdl-textfield__label" for="tip_2"></label>
                         </div>

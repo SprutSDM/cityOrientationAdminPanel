@@ -7,13 +7,15 @@
             <h2 class="mdl-card__title-text">{{ quest['name'] }}</h2>
         </div>
         <div class="mdl-card__supporting-text">
-            Место проведения: {{ quest['place'] }}
+            <b>Шаблон:</b> {{ quest['template_name'] }}
             <br>
-            Количество КП: {{ quest['amount_of_cp'] }}
+            <b>Количество КП:</b> {{ quest['amount_of_cp'] }}
             <br>
-            Время старта: {{ quest['date'] }}
+            <b>Место проведения:</b> {{ quest['place'] }}
             <br>
-            Продолжительность: {{ quest['duration'] }}
+            <b>Время старта:</b> {{ quest['date'] }}
+            <br>
+            <b>Продолжительность:</b> {{ quest['duration'] }}
         </div>
         <div class="mdl-card__actions mdl-card--border" style="display: flex;">
             <a href="/statistic"><button class="save_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
