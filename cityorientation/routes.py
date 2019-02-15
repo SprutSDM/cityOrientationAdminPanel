@@ -1,7 +1,8 @@
-from cityorientation import app, db_teams, db_tasks, db_stat
+from cityorientation import app, db_teams, db_tasks, db_stat, db_quests
 from flask import render_template, redirect, url_for, request, send_from_directory
 from random import shuffle
 from werkzeug.utils import secure_filename
+import time
 import os
 
 
@@ -18,15 +19,62 @@ def get_image(image):
 
 @app.route('/listOfQuests', methods=['GET'])
 def list_of_quests():
-    quests = [
-        {'name': 'В поисках Немо', 'date': '12 Февраля в 17:00', 'place': 'Петроградка', 'amount_of_cp': 17, 'duration':'4 часа', 'complete': True},
-        {'name': 'В поисках Немо', 'date': '12 Февраля в 17:00', 'place': 'Петрограftfдка', 'amount_of_cp': 100, 'duration':'4 часа', 'complete': False}
-    ]
+    quests = [*db_quests.find({})]
+    print(quests)
+    for quest in quests:
+        quest['complete'] = False
     return render_template('listOfQuests.html', quests=quests, title="Квесты")
 
 
-@app.route('/addQuest', methods=['GET'])
+@app.route('/saveQuest', methods=['POST'])
+def save_quest():
+    form = request.form
+    if 'quest_id' not in form:
+        return redirect(url_for('list_of_quests'))
+    if form['save'] == 'remove':
+        db_quests.remove({'quest_id': form['quest_id']})
+        return redirect(url_for('list_of_quests'))
+    quest = {
+        'quest_id': '',
+        'template_id': '',
+        'name': '',
+        'place': '',
+        'date': '1970-01-01',
+        'time': '00:00',
+        'duration': '01:00'
+    }
+    quest_id = form['quest_id']
+    quest['quest_id'] = quest_id
+    if 'template_id' in form:
+        quest['template_id'] = form['template_id']
+    if 'name' in form:
+        quest['name'] = form['name']
+    if 'place' in form:
+        quest['place'] = form['place']
+    if 'date' in form:
+        quest['date'] = form['date']
+    if 'time' in form:
+        quest['time'] = form['time']
+    if 'duration' in form:
+        quest['duration'] = form['duration']
+    db_quests.update({'quest_id': quest_id}, {'$set': quest})
+
+    return redirect(url_for('list_of_quests'))
+
+
+@app.route('/addQuest', methods=['POST'])
 def add_quest():
+    num_quests = int(db_stat.find_one({'stat': 'stat'})['num_quests'])
+    db_quests.insert({
+        'quest_id': f'quest_id_{num_quests}',
+        'template_id': '',
+        'name': '',
+        'place': '',
+        'date': '1970-01-01',
+        'time': '00:00',
+        'duration': '01:00'
+    })
+    db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
     return redirect(url_for('list_of_quests'))
 
 
@@ -170,11 +218,9 @@ def templates_editor():
 
 @app.route('/questEditor', methods=['GET'])
 def quest_editor():
-    editor = [
-        {'name': 'Шаблон1', 'date': '12-02-2019', 'duration': '4 часа', 'place': 'Петроградка', 'amount_of_cp': 17}
-            ]
-    etasks = [
-        {'name': 'Квест1', 'question': '12341234', 'answer': 'wergwfv'},
-        {'name': 'Квест2', 'question': 'qwefqwefз?', 'answer': 'wergwbw'},
-        {'name': 'Квест3', 'question': 'gertgwerg?', 'answer': 'wbfbw'}]
-    return render_template('questEditor.html', editor=editor, etasks=etasks, title="Редактор квеста")
+    if 'quest_id' in request.args:
+        quest = db_quests.find_one({'quest_id': request.args['quest_id']})
+    else:
+        print('all bad')
+    print(quest)
+    return render_template('questEditor.html', quest=quest, title="Редактор квеста")

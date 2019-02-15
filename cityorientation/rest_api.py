@@ -75,7 +75,8 @@ class JoinToQuest(Resource):
             return {'message': 'team does not exist'}
         if db_quests.find_one({'quest_id': req['quest_id'],
                                f'progress.{req["login"]}': {'$exists': True}}) is not None:
-            return {'message': 'team has already joined'}
+            db_teams.update({'login': req['login']}, {'$set': {'quest_id': req['quest_id']}})
+            return {'message': 'ok'}
         if db_teams.find_one({'login': req['login'], 'quest_id': {'$exists': False}}) is None:
             return {'message': 'team has joined to another quest'}
 
@@ -257,6 +258,18 @@ class GetState(Resource):
         return ans
 
 
+class LeaveQuest(Resource):
+    def get(self):
+        req = request.get_json()
+        ans = check_input_data(req, 'login')
+        if ans != 'ok':
+            return {'message': ans}
+        if db_teams.find_one({'login': req['login']}) is None:
+            return {'message': 'team does not exist'}
+        db_teams.update({'login': req['login']}, {'$unset': 'id_quest'})
+        return {'message': 'ok'}
+
+
 api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
 api.add_resource(RenameTeam, f'/api/{version}/renameTeam')
 api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
@@ -265,3 +278,4 @@ api.add_resource(ListOfTasks, f'/api/{version}/listOfTasks')
 api.add_resource(CompleteTask, f'/api/{version}/completeTask')
 api.add_resource(UseTip, f'/api/{version}/useTip')
 api.add_resource(GetState, f'/api/{version}/getState')
+api.add_resource(LeaveQuest, f'/api/{version}/leaveQuest')

@@ -1,99 +1,66 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="content-grid mdl-grid">
-    <div class="mdl-cell mdl-cell--6-col mdl-card mdl-shadow--6dp" id="{{ key }}">
-        <div class="mdl-card__supporting-text">
-            {% for editor in editor %}
-            <h5>Название:</h5>
-            <form action="#">
-                <div class="mdl-textfield-editor mdl-js-textfield">
-                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['name'] }}</textarea>
-                    <label class="mdl-textfield__label" for="sample5"></label>
+    <div class="center mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp">
+        <form action="saveQuest" method="POST">
+            <input style="display: none" value="{{ quest['quest_id'] }}" name="quest_id">
+            <input style="display: none" value="save" name="save" id="save">
+            <div class="mdl-card__supporting-text">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name="name" class="mdl-textfield__input" type="text" id="name" value="{{ quest['name'] }}">
+                    <label class="mdl-textfield__label" for="name">Название квеста</label>
                 </div>
-            </form>
-            <br>
-            <h5>Дата игры:</h5>
-            <form action="#">
-                <div class="mdl-textfield-editor mdl-js-textfield">
-                    <input type='date' name="calendar" class="mdl-textfield__input">
-                    <label class="mdl-textfield__label" for="sample5"></label>
+                <input name="template_id" value="" style="display: none">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:90%;">
+                    <input name="template" readonly class="mdl-textfield__input" id="template" value="{{ quest['date'] }}">
+                    <label class="mdl-textfield__label" for="name">Шаблон</label>
                 </div>
-            </form>
-            <br>
-            <h5>Время старта:</h5>
-            <form action="#">
-                <div class="mdl-textfield-editor mdl-js-textfield">
-                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" ></textarea>
-                    <label class="mdl-textfield__label" for="sample5"></label>
+                <div class="demo-avatar-dropdown" style="display: inline">
+                    <button type="button" id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                        <i class="material-icons" role="presentation">arrow_drop_down</i>
+                        <span class="visuallyhidden">Шаблон</span>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
+                        <li class="mdl-menu__item" onclick="changeTemplate('1234')">qwefqw@example.com</li>
+                        <li class="mdl-menu__item" onclick="changeTemplate('2345')">info@qfwef.com</li>
+                    </ul>
                 </div>
-            </form>
-            <br>
-            <h5>Место проведения:</h5>
-            <form action="#">
-                <div class="mdl-textfield-editor mdl-js-textfield">
-                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['place'] }}</textarea>
-                    <label class="mdl-textfield__label" for="sample5"></label>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name='date' type='date' class="mdl-textfield__input" id="date" value="{{ quest['date'] }}">
+                    <label class="mdl-textfield__label" for="name">Дата проведения</label>
                 </div>
-            </form>
-            <br>
-            <h5>Продолжительность:</h5>
-            <form action="#">
-                <div class="mdl-textfield-editor mdl-js-textfield">
-                    <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" >{{ editor['duration'] }}</textarea>
-                    <label class="mdl-textfield__label" for="sample5"></label>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name='time' type='time' class="mdl-textfield__input" id="time" value="{{ quest['time'] }}">
+                    <label class="mdl-textfield__label" for="time">Время проведения</label>
                 </div>
-            </form>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="mdl-cell mdl-cell--3-col">
-        <big style="margin-left: 10px">Текущие задания</big>
-        <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-            <thead>
-                <tr>
-                    <th>Название</th>
-                    <th>Вопрос</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for etasks in etasks %}
-                <tr>
-                    <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
-                    <td>{{ etasks['question'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="#"><button style="margin:8px;" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Удалить
-        </button></a>
-    </div>
-    <div class="mdl-cell mdl-cell--3-col">
-        <big style="margin-left: 10px">Архив заданий</big>
-        <table class="mdl-cell mdl-cell--4-col mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp ">
-            <thead>
-                <tr>
-                    <th>Название</th>
-                    <th>Вопрос</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for etasks in etasks %}
-                <tr>
-                    <td class="mdl-data-table__cell--non-numeric">{{ etasks['name'] }}</td>
-                    <td>{{ etasks['question'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="#"><button style="margin: 8px" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Добавить
-        </button></a>
-    </div>
-    <div style="position: fixed; bottom: 0; right: 0; margin: 30px;">
-        <a href="#"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Сохранить
-        </button></a>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name="place" class="mdl-textfield__input" type="text" id="place" value="{{ quest['place'] }}">
+                    <label class="mdl-textfield__label" for="place">Место проведения</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name='duration' type='time' class="mdl-textfield__input" id="duration" value="{{ quest['duration'] }}">
+                    <label class="mdl-textfield__label" for="duration">Продолжительность</label>
+                </div>
+            </div>
+            <div class="mdl-card__actions mdl-card--border" style="display: flex;">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+                    Сохранить
+                </button>
+                <div class="mdl-layout-spacer"></div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                onclick="setRemove()">
+                    Удалить
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+<script>
+    function setRemove() {
+        var file = document.getElementById('save').value = 'remove';
+    }
+    function changeTemplate(val) {
+        document.getElementById('template').value = val;
+    }
+</script>
 {% endblock content %}
