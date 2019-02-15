@@ -1,4 +1,4 @@
-from cityorientation import app, db_teams, db_tasks, db_stat, db_quests
+from cityorientation import app, db_teams, db_tasks, db_quests, db_templates, db_stat
 from flask import render_template, redirect, url_for, request, send_from_directory
 from random import shuffle
 from werkzeug.utils import secure_filename
@@ -188,11 +188,43 @@ def remove_team(login: str):
 
 @app.route('/listOfTemplates', methods=['GET'])
 def list_of_templates():
-    templates = [
-        {'name': 'Шаблон1', 'duration': '4 часа', 'place': 'Петроградка', 'amount_of_cp': 17},
-        {'name': 'Шаблон2', 'duration': '4 часа', 'place': 'Вязьма', 'amount_of_cp': 100},
-    ]
+    templates = [*db_templates.find({})]
     return render_template('listOfTemplates.html', templates=templates, title="Шаблоны")
+
+
+@app.route('/saveTemplate', methods=['POST'])
+def save_template():
+    form = request.form
+    print('form', request.form)
+    template = db_templates.find_one({'template_id': form['template_id']})
+    if form['save'] == 'remove':
+        db_templates.remove({'template_id': form['template_id']})
+    elif form['save'] == 'addTask':
+        template['name'] = form['name']
+        template['task_list'].append(form['task_id'])
+        db_templates.update({'template_id': form['template_id']}, {'$set': template})
+        return redirect(f'{url_for("template_editor")}?template_id={template["template_id"]}')
+    elif form['save'] == 'removeTask':
+        template['name'] = form['name']
+        print(form['task_id'], template['task_list'])
+        template['task_list'].remove(form['task_id'])
+        db_templates.update({'template_id': form['template_id']}, {'$set': template})
+        return redirect(f'{url_for("template_editor")}?template_id={template["template_id"]}')
+    else:
+        db_templates.update({'template_id': form['template_id']}, {'$set': {'name': form['name']}})
+    return redirect(url_for('list_of_templates'))
+
+
+@app.route('/addTemplate', methods=['POST'])
+def add_template():
+    print('1234')
+    num_quests = int(db_stat.find_one({'stat': 'stat'})['num_templates'])
+    db_templates.insert({
+        'template_id': f'template_id_{num_quests}',
+        'name': '',
+        'task_list': []})
+    db_stat.update({'stat': 'stat'}, {'$set': {'num_templates': num_quests + 1}})
+    return redirect(url_for('list_of_templates'))
 
 
 @app.route('/statistic', methods=['GET'])
@@ -202,18 +234,36 @@ def statistic():
     return render_template('statistic.html', statistic=statistic, kvest=kvest, title="Статистика квеста")
 
 
-@app.route('/templatesEditor', methods=['GET'])
-def templates_editor():
-    editor = [
-        {'name': 'Шаблон1', 'date': '12-02-2019', 'duration': '4 часа', 'place': 'Петроградка', 'amount_of_cp': 17}
-            ]
-    etasks = [
-        {'name': 'Квест1', 'question': 'qwefqwefqwef', 'answer': 'qwefqd'},
-        {'name': 'Квест2', 'question': 'wergwergwerg', 'answer': 'rgtbwtr'},
-        {'name': 'Квест3', 'question': 'qwefqwefqwef', 'answer': 'qwefsd'},
-        {'name': 'Квест3', 'question': 'qwefqwefqwef', 'answer': 'qwefsd'}
-    ]
-    return render_template('templatesEditor.html', editor=editor, etasks=etasks, title="Редактор шаблон")
+@app.route('/templateEditor', methods=['GET'])
+def template_editor():
+    if 'template_id' in request.args:
+        template = db_templates.find_one({'template_id': request.args['template_id']})
+    else:
+        print('all bad')
+    all_tasks = [*db_tasks.find({})]
+    selected_tasks = []
+    remaining_tasks = []
+    task_list = set(template['task_list'])
+    for task in all_tasks:
+        task = {
+            'task_id': task['task_id'],
+            'name': task['name'],
+            'content': task['content']
+        }
+        if len(task['name']) >= 10:
+            task['name'] = task['name'][:0] + '..'
+        if len(task['content']) >= 13:
+            task['content'] = task['content'][:13] + '..'
+        if task['task_id'] in task_list:
+            selected_tasks.append(task)
+        else:
+            remaining_tasks.append(task)
+    print(template)
+    print(selected_tasks)
+    print(remaining_tasks)
+
+    return render_template('templateEditor.html', template=template, selected_tasks=selected_tasks,
+                           remaining_tasks=remaining_tasks, title="Редактор шаблона")
 
 
 @app.route('/questEditor', methods=['GET'])

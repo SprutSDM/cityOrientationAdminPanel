@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form action="saveTemplate" method="POST">
+    <div class="content-grid mdl-grid">
+        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp" style="height: 0px">
+            <input style="display: none" value="{{ template['template_id'] }}" name="template_id">
+            <input style="display: none" value="" name="task_id" id="task_id">
+            <input style="display: none" value="save" name="save" id="save">
+            <div class="mdl-card__supporting-text">
+                <b>Шаблон</b>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                    <input name="name" class="mdl-textfield__input" type="text" id="name" value="{{ template['name'] }}">
+                    <label class="mdl-textfield__label" for="name">Название шаблона</label>
+                </div>
+            </div>
+            <div class="mdl-card__actions mdl-card--border" style="display: flex;">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+                    Сохранить
+                </button>
+                <div class="mdl-layout-spacer"></div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                onclick="setRemove()">
+                    Удалить
+                </button>
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp">
+            <div class="mdl-card__supporting-text" style="padding-left:0px;height:300px; overflow-y:scroll">
+                <b style="margin-left:12px">Текущие задания</b>
+                <table class="mdl-data-table mdl-js-data-table"
+                style="margin-left: 0px; table-layout:fixed; width:100%">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left">Название</th>
+                            <th style="text-align:left">Вопрос</th>
+                            <th style="text-align:left">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in selected_tasks %}
+                        <tr>
+                            <td style="text-align:left">{{ task['name'] }}</td>
+                            <td style="text-align:left">{{ task['content'] }}</td>
+                            <td style="text-align:center">
+                                <button class="mdl-button mdl-js-button mdl-button mdl-button--raised mdl-js-ripple-effect"
+                                    style="width:80px" onclick="setRemoveTask('{{ task['task_id'] }}')">
+                                    <font size="1">Удалить</font>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp">
+            <div class="mdl-card__supporting-text" style="padding-left:0px;height:300px; overflow-y:scroll">
+                <b style="margin-left:12px">Оставшиеся задания</b>
+                <table class="mdl-data-table mdl-js-data-table"
+                style="margin-left: 0px; table-layout:fixed; width:100%">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left">Название</th>
+                            <th style="text-align:left">Вопрос</th>
+                            <th style="text-align:left">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in remaining_tasks %}
+                        <tr>
+                            <td style="text-align:left">{{ task['name'] }}</td>
+                            <td style="text-align:left">{{ task['content'] }}</td>
+                            <td style="text-align:center">
+                                <button class="mdl-button mdl-js-button mdl-button mdl-button--raised mdl-js-ripple-effect"
+                                    style="width:80px" onclick="setAddTask('{{ task['task_id'] }}')">
+                                    <font size="1">Добавить</font>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    function setRemove() {
+        document.getElementById('save').value = 'remove';
+    }
+    function setAddTask(taskId) {
+        document.getElementById('save').value = 'addTask';
+        document.getElementById('task_id').value = taskId;
+    }
+    function setRemoveTask(taskId) {
+        document.getElementById('save').value = 'removeTask';
+        document.getElementById('task_id').value = taskId;
+    }
+</script>
+{% endblock content %}
