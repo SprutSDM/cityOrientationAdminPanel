@@ -23,12 +23,19 @@ def list_of_quests():
     print(quests)
     for quest in quests:
         quest['complete'] = False
+        template = db_templates.find_one({'template_id': quest['template_id']})
+        quest['amount_of_cp'] = 0
+        quest['template_name'] = 'не указан'
+        if template is not None:
+            quest['amount_of_cp'] = len(template['task_list'])
+            quest['template_name'] = template['name']
     return render_template('listOfQuests.html', quests=quests, title="Квесты")
 
 
 @app.route('/saveQuest', methods=['POST'])
 def save_quest():
     form = request.form
+    print(form)
     if 'quest_id' not in form:
         return redirect(url_for('list_of_quests'))
     if form['save'] == 'remove':
@@ -250,10 +257,10 @@ def template_editor():
             'name': task['name'],
             'content': task['content']
         }
-        if len(task['name']) >= 10:
-            task['name'] = task['name'][:0] + '..'
+        if len(task['name']) >= 11:
+            task['name'] = task['name'][:10] + '..'
         if len(task['content']) >= 13:
-            task['content'] = task['content'][:13] + '..'
+            task['content'] = task['content'][:12] + '..'
         if task['task_id'] in task_list:
             selected_tasks.append(task)
         else:
@@ -270,7 +277,9 @@ def template_editor():
 def quest_editor():
     if 'quest_id' in request.args:
         quest = db_quests.find_one({'quest_id': request.args['quest_id']})
+        templates = [*db_templates.find({})]
     else:
         print('all bad')
-    print(quest)
-    return render_template('questEditor.html', quest=quest, title="Редактор квеста")
+    print('quest', quest)
+    print('templates', templates)
+    return render_template('questEditor.html', quest=quest, templates=templates, title="Редактор квеста")
