@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-grid mdl-grid center-all" style="margin-left: 10px; margin-top:8px; margin-bottom: 10%">
+<div class="content-grid mdl-grid">
     <!-- Class "mdl-data-table-selectable" -->
-    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+    <table class="center-all mdl-data-table mdl-js-data-table mdl-shadow--2dp">
         <thead>
             <tr>
                 <th class="mdl-data-table__cell--non-numeric" style="text-align:  left;">Название</th>
@@ -21,14 +21,14 @@
                 <form action="saveTask" method="POST" enctype="multipart/form-data">
                     <input name="task_id" value="{{ task['task_id'] }}" style="display: none">
                     <td style="width: 100px;">
-                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
-                            <textarea name="name" class="mdl-textfield__input" type="text" rows="3" id="name">{{ task['name'] }}</textarea>
+                        <div class="mdl-textfield mdl-js-textfield" >
+                            <textarea style="font-size: 12px;" name="name" class="mdl-textfield__input" type="text" rows="3" id="name">{{ task['name'] }}</textarea>
                             <label class="mdl-textfield__label" for="name"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
-                            <textarea name="content" class="mdl-textfield__input" type="text" rows="3" id="content">{{ task['content'] }}</textarea>
+                        <div class="mdl-textfield mdl-js-textfield" >
+                            <textarea style="font-size: 12px;" name="content" class="mdl-textfield__input" type="text" rows="3" id="content">{{ task['content'] }}</textarea>
                             <label class="mdl-textfield__label" for="content"></label>
                         </div>
                     </td>
@@ -53,20 +53,20 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
-                            <textarea name="answers" class="mdl-textfield__input" type="text" rows="3" id="answers">{{ task['answers'] }}</textarea>
+                        <div class="mdl-textfield mdl-js-textfield" >
+                            <textarea style="font-size: 12px;" name="answers" class="mdl-textfield__input" type="text" rows="3" id="answers">{{ task['answers'] }}</textarea>
                             <label class="mdl-textfield__label" for="answers"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
-                            <textarea name="tip_1" class="mdl-textfield__input" type="text" rows="3" id="tip_1">{{ task['tip_1'] }}</textarea>
+                        <div class="mdl-textfield mdl-js-textfield" >
+                            <textarea style="font-size: 12px;" name="tip_1" class="mdl-textfield__input" type="text" rows="3" id="tip_1">{{ task['tip_1'] }}</textarea>
                             <label class="mdl-textfield__label" for="tip_1"></label>
                         </div>
                     </td>
                     <td>
-                        <div class="mdl-textfield mdl-js-textfield" style="height: 70px">
-                            <textarea name="tip_2" class="mdl-textfield__input" type="text" rows="3" id="tip_2">{{ task['tip_2'] }}</textarea>
+                        <div class="mdl-textfield mdl-js-textfield" >
+                            <textarea style="font-size: 12px;" name="tip_2" class="mdl-textfield__input" type="text" rows="3" id="tip_2">{{ task['tip_2'] }}</textarea>
                             <label class="mdl-textfield__label" for="tip_2"></label>
                         </div>
                     </td>
@@ -80,15 +80,17 @@
                 </form>
             </tr>
             {% endfor %}
+            <tr>
+                <td colspan="7" style="text-align:center;">
+                    <form action="addTask" method="POST">
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                            Добавить задание
+                        </button>
+                    </form>
+                </td>
+            </tr>
         </tbody>
     </table>
-    <div class="mdl-cell mdl-cell--12-col">
-    <form action="addTask" method="POST">
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-            Добавить задание
-        </button>
-    </form>
-</div>
 </div>
 <script>
     function getFileName(id) {

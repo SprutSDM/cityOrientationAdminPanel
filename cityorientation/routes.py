@@ -181,7 +181,7 @@ def add_team():
     password = ''.join(password[:6])
     team = {'login': f'team{num_team}',
             'password': password,
-            'name': f'Team {num_team}'}
+            'team_name': f'Team {num_team}'}
     db_stat.update({'stat': 'stat'}, {'$set': {'num_team': str(num_team + 1)}})
     db_teams.insert(team)
     return redirect(url_for('list_of_teams'))

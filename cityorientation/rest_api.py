@@ -58,6 +58,16 @@ class ListOfQuests(Resource):
         for quest in list_of_quests:
             template = db_templates.find_one({'template_id': quest['template_id']})
             quest['amount_of_cp'] = str(len(template['task_list']))
+
+            dd = datetime.date(*map(int, quest['date'].split('-'))) - datetime.date(1970, 1, 1)
+            quest['date'] = dd.days
+
+            times = quest['time'].split(':')
+            quest['time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+
+            times = quest['duration'].split(':')
+            quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+
             quest.pop('template_id')
         return {'message': 'ok', 'count': len(list_of_quests), 'list_of_quests': list_of_quests}
 
