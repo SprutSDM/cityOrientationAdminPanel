@@ -138,6 +138,7 @@ class CompleteTask(Resource):
     def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'quest_id', 'task_number')
+        print(ans)
         if ans != 'ok':
             return {'message': ans}
         if db_teams.find_one({'login': req['login']}) is None:
@@ -154,9 +155,10 @@ class CompleteTask(Resource):
         times_complete = progress['times_complete']
         step = int(progress['step'])
         task_number = int(req['task_number'])
+        print(f'complete_task {task_number}')
+        print(times)
         if task_number < 0 or task_number >= len(times):
             return {'message': 'task_number out of range'}
-
         delta = datetime.datetime.now() - datetime.datetime.combine(datetime.datetime.now().date(), datetime.time(0, 0))
         if int(times[task_number]) != -1:
             return {'message': 'task already complete'}
@@ -164,7 +166,9 @@ class CompleteTask(Resource):
             # В этом случае время прохождения первого задания - разница между текущим временем и
             # временем запуска самого квеста
             time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
-            times_complete[task_number] = delta.seconds
+            times_complete[task_number] = delta.seconds - 3 * 60 * 60
+            tt = time_start.split(':')
+            time_start = int(tt[0]) * 60 * 60 + int(tt[1]) * 60
             times[task_number] = delta.seconds - int(time_start)
             # Обновление массивов времён прохождения и номера текущего задания(step).
             # Берётся максимум т.к. возможна ситуация, когда придёт ответ на старое задание, и прогресс вернётся к
@@ -178,8 +182,8 @@ class CompleteTask(Resource):
             return {'message': 'ok'}
         else:
             # А здесь время прохождения задания - разница между текущим временем и временем финиша предыдущего
-            times_complete[task_number] = delta.seconds
-            times[task_number] = delta.seconds - times_complete[task_number - 1]
+            times_complete[task_number] = delta.seconds - 3 * 60 * 60
+            times[task_number] = delta.seconds - 3 * 60 * 60 - times_complete[task_number - 1]
             db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                              {'$set': {
                                  f'progress.{req["login"]}.times': times,
@@ -263,20 +267,20 @@ class GetState(Resource):
             'step': progress['step'],
             'date_now': int(time.time() // 86400),
             'time_now': (datetime.datetime.now() - datetime.datetime.combine(
-                datetime.datetime.now().date(), datetime.time(0, 0))).seconds
+                datetime.datetime.now().date(), datetime.time(0, 0))).seconds - 3 * 60 * 60
         }
         return ans
 
 
 class LeaveQuest(Resource):
-    def get(self):
+    def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login')
         if ans != 'ok':
             return {'message': ans}
         if db_teams.find_one({'login': req['login']}) is None:
             return {'message': 'team does not exist'}
-        db_teams.update({'login': req['login']}, {'$unset': 'id_quest'})
+        db_teams.update({'login': req['login']}, {'$unset': {'quest_id': ''}})
         return {'message': 'ok'}
 
 

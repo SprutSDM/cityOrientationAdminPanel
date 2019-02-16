@@ -18,18 +18,19 @@
             <b>Продолжительность:</b> {{ quest['duration'] }}
         </div>
         <div class="mdl-card__actions mdl-card--border" style="display: flex;">
-            <a href="/statistic"><button class="save_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
-            </a>
+            <form method="GET" action="statistic/{{ quest['quest_id'] }}">
+                <button class="remove_button mdl-button mdl-button--raised mdl-button--primary mdl-js-button mdl-js-ripple-effect">Статистика</button>
+            </form>
             <div class="mdl-layout-spacer"></div>
             {% if quest['complete'] %}
                 <form method="GET" action="remove">
                     <input style="display: none" name="quest_id" value="{{ quest['quest_id'] }}">
-                    <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect" id="remove_button">Удалить</button>
+                    <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect">Удалить</button>
                 </form>
             {% else %}
                 <form method="GET" action="questEditor">
                     <input style="display: none" name="quest_id" value="{{ quest['quest_id'] }}">
-                    <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect" id="remove_button">Редактрировать</button>
+                    <button class="remove_button mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect">Редактрировать</button>
                 </form>
             {% endif %}
         </div>

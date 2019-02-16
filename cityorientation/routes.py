@@ -169,7 +169,13 @@ def save_task():
 
 @app.route('/listOfTeams', methods=['GET'])
 def list_of_teams():
-    teams = db_teams.find({}, {'_id': False})
+    teams = [*db_teams.find({})]
+    for team in teams:
+        team['quest_name'] = '-'
+        if 'quest_id' in team:
+            quest = db_quests.find_one({'quest_id': team['quest_id']})
+            if quest is not None:
+                team['quest_name'] = quest['name']
     return render_template('listOfTeams.html', teams=teams, title="Команды")
 
 
@@ -234,11 +240,33 @@ def add_template():
     return redirect(url_for('list_of_templates'))
 
 
-@app.route('/statistic', methods=['GET'])
-def statistic():
-    statistic = [{'name': 'команда1', 'time1': '0:20', 'hint1': '0/2', 'time2': '0:20', 'hint2': '0/2', 'time3': '0:20', 'hint3': '0/2', 'time4': '0:20', 'hint4': '0/2', 'time5': '0:20', 'hint5': '0/2', 'time6': '0:20', 'hint6': '0/2', 'time7': '0:20', 'hint7': '0/2', 'time8': '0:20', 'hint8': '0/2', 'time9': '0:20', 'hint9': '0/2', 'time10': '0:20', 'hint10': '0/2', 'time11': '0:20', 'hint11': '0/2', 'time12': '0:20', 'hint12': '0/2', 'time13': '0:20', 'hint13': '0/2', 'time14': '0:20', 'hint14': '0/2', 'time15': '0:20', 'hint15': '0/2', 'time16': '0:20', 'hint16': '0/2', 'time17': '0:20', 'hint17': '0/2', 'time18': '0:20', 'hint18': '0/2', 'time19': '0:20', 'hint19': '0/2'} for i in range(50)]
-    kvest = [{'name': 'Квест1', 'date': '12-02-2019', 'duration': '4 часа', 'place': 'Петроградка'}]
-    return render_template('statistic.html', statistic=statistic, kvest=kvest, title="Статистика квеста")
+@app.route('/statistic/<quest_id>', methods=['GET'])
+def statistic(quest_id):
+    quest = db_quests.find_one({'quest_id': quest_id})
+    teams = []
+    template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': quest_id})['template_id']})
+    amount_of_cp = len(template['task_list'])
+    quest['amount_of_cp'] = amount_of_cp
+    if 'progress' in quest:
+        for login in quest['progress']:
+            if db_teams.find_one({'login': login}) is None:
+                db_quests.update({'quest_id': quest_id}, {'$unset': {f'progress.{login}': ""}})
+                continue
+            teams.append(dict())
+            print(quest['progress'])
+            teams[-1]['name'] = db_teams.find_one({'login': login})['team_name']
+            print('tmtktwglnnll', quest['progress'][login]['times'])
+            teams[-1]['times'] = quest['progress'][login]['times']
+            print('jnklrfnlfqfweq', teams[-1]['times'])
+            for i in range(len(teams[-1]['times'])):
+                tm = int(teams[-1]['times'][i])
+                #print(tm)
+                if tm == -1:
+                    teams[-1]['times'][i] = '-'
+                else:
+                    teams[-1]['times'][i] = ('00' + str(tm//60//60))[-2:] + ':' + ('00' + str((tm//60) % 60))[-2:] + ':' + ('00' + str(tm % 60))[-2:]
+            teams[-1]['tips'] = quest['progress'][login]['tips']
+    return render_template('statistic.html', quest=quest, teams=teams, title="Статистика квеста")
 
 
 @app.route('/templateEditor', methods=['GET'])

@@ -8,6 +8,7 @@
                 <th style="text-align: center">Команда</th>
                 <th style="text-align: center">Логин</th>
                 <th style="text-align: center">Пароль</th>
+                <th style="text-align: center">Квест</th>
                 <th style="text-align: center">Действие</th>
             </tr>
         </thead>
@@ -15,8 +16,9 @@
             {% for teams in teams %}
             <tr class="tr_check" id="{{ teams['login'] }}">
                 <td class="mdl-data-table__cell--non-numeric">{{ teams['team_name'] }}</td>
-                <td>{{ teams['login'] }}</td>
-                <td>{{ teams['password'] }}</td>
+                <td style="text-align: center">{{ teams['login'] }}</td>
+                <td style="text-align: center">{{ teams['password'] }}</td>
+                <td style="text-align: center">{{ teams['quest_name'] }}</td>
                 <td>
                     <form action="removeTeam/{{ teams['login'] }}" method="POST" style="display: inline-block">
                         <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Удалить</button>
@@ -25,7 +27,7 @@
             </tr>
             {% endfor %}
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     <form action="addTeam" method="POST">
                         <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
                         style="width: 100%;text-align: center;">
