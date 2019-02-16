@@ -155,7 +155,7 @@ def save_task():
             task['img'] = img
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], img))
     if 'answers' in form:
-        task['answers'] = [elem.strip() for elem in form['answers'].split(',')]
+        task['answers'] = [elem.strip().lower() for elem in form['answers'].split(',')]
     if 'tip_1' in form:
         task['tips'][0] = form['tip_1']
     if 'tip_2' in form:
@@ -306,8 +306,9 @@ def quest_editor():
     if 'quest_id' in request.args:
         quest = db_quests.find_one({'quest_id': request.args['quest_id']})
         templates = [*db_templates.find({})]
+        template_name = db_templates.find_one({'template_id': quest['template_id']})['name']
     else:
         print('all bad')
     print('quest', quest)
     print('templates', templates)
-    return render_template('questEditor.html', quest=quest, templates=templates, title="Редактор квеста")
+    return render_template('questEditor.html', quest=quest, templates=templates, template_name=template_name, title="Редактор квеста")

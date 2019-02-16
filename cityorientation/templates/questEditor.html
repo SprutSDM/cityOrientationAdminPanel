@@ -10,9 +10,9 @@
                     <input name="name" class="mdl-textfield__input" type="text" id="name" value="{{ quest['name'] }}">
                     <label class="mdl-textfield__label" for="name">Название квеста</label>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width:100%;">
-                    <input type="text" value="" class="mdl-textfield__input" id="template_id" readonly>
-                    <input type="hidden" value="" name="template_id">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select" style="width:100%;">
+                    <input type="text" value="{{ template_name }}" class="mdl-textfield__input" id="template_id" readonly>
+                    <input type="hidden" value="{{ quest['template_id'] }}" name="template_id">
                     <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
                     <label for="template_id" class="mdl-textfield__label">Шаблон</label>
                     <ul for="template_id" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
@@ -25,20 +25,6 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <!--div class="demo-avatar-dropdown" style="display: inline">
-                    <button type="button" id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                        <i class="material-icons" role="presentation">arrow_drop_down</i>
-                        <span class="visuallyhidden">Шаблон</span>
-                    </button>
-                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-                        {% for template in templates %}
-                            <li class="mdl-menu__item"
-                                onclick="changeTemplate('{{ template['template_id'] }}', '{{ template['name'] }}')">
-                                {{ template['name'] }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div-->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
                     <input name='date' type='date' class="mdl-textfield__input" id="date" value="{{ quest['date'] }}">
                     <label class="mdl-textfield__label" for="date">Дата проведения</label>
@@ -69,9 +55,5 @@
         </form>
     </div>
 </div>
-<script>
-    function setRemove() {
-        var file = document.getElementById('save').value = 'remove';
-    }
-</script>
+<script src="static/js/questEditor.js"></script>
 {% endblock content %}

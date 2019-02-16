@@ -1,7 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="content-grid mdl-grid">
-    <!-- Class "mdl-data-table-selectable" -->
     <table class="center-all mdl-data-table mdl-js-data-table mdl-shadow--2dp">
         <thead>
             <tr>
@@ -92,14 +91,5 @@
         </tbody>
     </table>
 </div>
-<script>
-    function getFileName(id) {
-        var file = document.getElementById('uploaded-file-' + id).value;
-        file = file.replace(/\\/g, '/').split('/').pop();
-        document.getElementById('file-name-' + id).innerHTML = file;
-    }
-    function removeImgHolder(id) {
-        var file = document.getElementById('img-holder-' + id).name = ''
-    }
-</script>
+<script src="static/js/listOfTasks.js"></script>
 {% endblock content %}

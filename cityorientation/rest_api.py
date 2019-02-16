@@ -63,7 +63,7 @@ class ListOfQuests(Resource):
             quest['date'] = dd.days
 
             times = quest['time'].split(':')
-            quest['time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+            quest['time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60 - 3 * 60 * 60
 
             times = quest['duration'].split(':')
             quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
