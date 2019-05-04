@@ -2,7 +2,9 @@ from cityorientation import app, db_teams, db_tasks, db_quests, db_templates, db
 from flask import render_template, redirect, url_for, request, send_from_directory
 from random import shuffle
 from werkzeug.utils import secure_filename
+import datetime
 import time
+import logging
 import os
 
 
@@ -20,12 +22,15 @@ def get_image(image):
 @app.route('/listOfQuests', methods=['GET'])
 def list_of_quests():
     quests = [*db_quests.find({})]
-    print(quests)
     for quest in quests:
         quest['complete'] = False
         template = db_templates.find_one({'template_id': quest['template_id']})
         quest['amount_of_cp'] = 0
         quest['template_name'] = 'не указан'
+        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
+        quest['date'] = start_time.strftime('%d-%m-%Y, %H:%M')
+        duration = int(quest['duration'])
+        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
         if template is not None:
             quest['amount_of_cp'] = len(template['task_list'])
             quest['template_name'] = template['name']
@@ -35,7 +40,6 @@ def list_of_quests():
 @app.route('/saveQuest', methods=['POST'])
 def save_quest():
     form = request.form
-    print(form)
     if 'quest_id' not in form:
         return redirect(url_for('list_of_quests'))
     if form['save'] == 'remove':
@@ -46,9 +50,8 @@ def save_quest():
         'template_id': '',
         'name': '',
         'place': '',
-        'date': '1970-01-01',
-        'time': '00:00',
-        'duration': '01:00'
+        'start_time': 1546290000, # 1 января 2019 года
+        'duration': 3600
     }
     quest_id = form['quest_id']
     quest['quest_id'] = quest_id
@@ -58,12 +61,16 @@ def save_quest():
         quest['name'] = form['name']
     if 'place' in form:
         quest['place'] = form['place']
-    if 'date' in form:
-        quest['date'] = form['date']
-    if 'time' in form:
-        quest['time'] = form['time']
+    if 'date' in form and 'time' in form:
+        seconds = (datetime.date(*map(int, form['date'].split('-'))) - datetime.date(1970, 1, 1)).days
+        seconds *= 24 * 60 * 60
+        times = form['time'].split(':')
+        seconds += int(times[0]) * 60 * 60 + int(times[1]) * 60
+        seconds += time.timezone
+        quest['start_time'] = max(seconds, 1546290000)
     if 'duration' in form:
-        quest['duration'] = form['duration']
+        times = form['duration'].split(':')
+        quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
     db_quests.update({'quest_id': quest_id}, {'$set': quest})
 
     return redirect(url_for('list_of_quests'))
@@ -77,9 +84,8 @@ def add_quest():
         'template_id': '',
         'name': '',
         'place': '',
-        'date': '1970-01-01',
-        'time': '00:00',
-        'duration': '01:00'
+        'start_time': 1546290000, # 1 января 2019 года
+        'duration': 3600
     })
     db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
     return redirect(url_for('list_of_quests'))
@@ -160,7 +166,6 @@ def save_task():
         task['tips'][0] = form['tip_1']
     if 'tip_2' in form:
         task['tips'][1] = form['tip_2']
-    print(task)
 
     db_tasks.update({'task_id': task_id}, {'$set': task})
 
@@ -208,7 +213,6 @@ def list_of_templates():
 @app.route('/saveTemplate', methods=['POST'])
 def save_template():
     form = request.form
-    print('form', request.form)
     template = db_templates.find_one({'template_id': form['template_id']})
     if form['save'] == 'remove':
         db_templates.remove({'template_id': form['template_id']})
@@ -219,7 +223,6 @@ def save_template():
         return redirect(f'{url_for("template_editor")}?template_id={template["template_id"]}')
     elif form['save'] == 'removeTask':
         template['name'] = form['name']
-        print(form['task_id'], template['task_list'])
         template['task_list'].remove(form['task_id'])
         db_templates.update({'template_id': form['template_id']}, {'$set': template})
         return redirect(f'{url_for("template_editor")}?template_id={template["template_id"]}')
@@ -230,7 +233,6 @@ def save_template():
 
 @app.route('/addTemplate', methods=['POST'])
 def add_template():
-    print('1234')
     num_quests = int(db_stat.find_one({'stat': 'stat'})['num_templates'])
     db_templates.insert({
         'template_id': f'template_id_{num_quests}',
@@ -247,24 +249,24 @@ def statistic(quest_id):
     template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': quest_id})['template_id']})
     amount_of_cp = len(template['task_list'])
     quest['amount_of_cp'] = amount_of_cp
+    start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
+    quest['date'] = start_time.strftime('%d-%m-%Y, %H:%M')
+    duration = int(quest['duration'])
+    quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
     if 'progress' in quest:
         for login in quest['progress']:
             if db_teams.find_one({'login': login}) is None:
                 db_quests.update({'quest_id': quest_id}, {'$unset': {f'progress.{login}': ""}})
                 continue
             teams.append(dict())
-            print(quest['progress'])
             teams[-1]['name'] = db_teams.find_one({'login': login})['team_name']
-            print('tmtktwglnnll', quest['progress'][login]['times'])
-            teams[-1]['times'] = quest['progress'][login]['times']
-            print('jnklrfnlfqfweq', teams[-1]['times'])
-            for i in range(len(teams[-1]['times'])):
-                tm = int(teams[-1]['times'][i])
-                #print(tm)
+            teams[-1]['times_complete'] = quest['progress'][login]['times_complete']
+            for i in range(len(teams[-1]['times_complete'])):
+                tm = int(teams[-1]['times_complete'][i])
                 if tm == -1:
-                    teams[-1]['times'][i] = '-'
+                    teams[-1]['times_complete'][i] = '-'
                 else:
-                    teams[-1]['times'][i] = ('00' + str(tm//60//60))[-2:] + ':' + ('00' + str((tm//60) % 60))[-2:] + ':' + ('00' + str(tm % 60))[-2:]
+                    teams[-1]['times_complete'][i] = ('00' + str(tm//60//60))[-2:] + ':' + ('00' + str((tm//60) % 60))[-2:] + ':' + ('00' + str(tm % 60))[-2:]
             teams[-1]['tips'] = quest['progress'][login]['tips']
     return render_template('statistic.html', quest=quest, teams=teams, title="Статистика квеста")
 
@@ -273,8 +275,6 @@ def statistic(quest_id):
 def template_editor():
     if 'template_id' in request.args:
         template = db_templates.find_one({'template_id': request.args['template_id']})
-    else:
-        print('all bad')
     all_tasks = [*db_tasks.find({})]
     selected_tasks = []
     remaining_tasks = []
@@ -293,9 +293,6 @@ def template_editor():
             selected_tasks.append(task)
         else:
             remaining_tasks.append(task)
-    print(template)
-    print(selected_tasks)
-    print(remaining_tasks)
 
     return render_template('templateEditor.html', template=template, selected_tasks=selected_tasks,
                            remaining_tasks=remaining_tasks, title="Редактор шаблона")
@@ -305,10 +302,14 @@ def template_editor():
 def quest_editor():
     if 'quest_id' in request.args:
         quest = db_quests.find_one({'quest_id': request.args['quest_id']})
+        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
+        quest['time'] = start_time.strftime('%H:%M')
+        quest['date'] = start_time.strftime('%Y-%m-%d')
+        duration = quest['duration']
+        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
         templates = [*db_templates.find({})]
-        template_name = db_templates.find_one({'template_id': quest['template_id']})['name']
-    else:
-        print('all bad')
-    print('quest', quest)
-    print('templates', templates)
+        if db_templates.find_one({'template_id': quest['template_id']}) is None:
+            template_name = ''
+        else:
+            template_name = db_templates.find_one({'template_id': quest['template_id']})['name']
     return render_template('questEditor.html', quest=quest, templates=templates, template_name=template_name, title="Редактор квеста")

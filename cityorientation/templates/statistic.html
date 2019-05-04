@@ -30,13 +30,13 @@
                     <tr>
                         <td style="text-align:left">{{ team['name'] }}</td>
                         {% for i in range(quest['amount_of_cp']) %}
-                            {% if team['times'][i] == '-' %}
-                                <td bgcolor="#FFCDD2">{{ team['times'][i] }}
+                            {% if team['times_complete'][i] == '-' %}
+                                <td bgcolor="#FFCDD2">{{ team['times_complete'][i] }}
                                     <br>
                                     {{ team['tips'][i] }}/2
                                 </td>
                             {% else %}
-                                <td bgcolor="#C8E6C9">{{ team['times'][i] }}
+                                <td bgcolor="#C8E6C9">{{ team['times_complete'][i] }}
                                     <br>
                                     {{ team['tips'][i] }}/2
                                 </td>

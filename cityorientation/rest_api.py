@@ -6,7 +6,7 @@ import time
 
 api = Api(app)
 # Актуальная версия api
-version = 'v1.0'
+version = 'v1'
 
 
 # Проверяет, что переданы корректные данные
@@ -22,9 +22,8 @@ def check_input_data(req, *args):
 
 
 # Возвращает ok и team_name, если такая пара login-password существует
-class LoginTeam(Resource):
+class SignUp(Resource):
     def post(self):
-        print(request.data)
         req = request.get_json()
         ans = check_input_data(req, 'login', 'password')
         if ans != 'ok':
@@ -53,20 +52,11 @@ class RenameTeam(Resource):
 
 # Возвращает список квестов
 class ListOfQuests(Resource):
-    def post(self):
+    def get(self):
         list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False})]
         for quest in list_of_quests:
             template = db_templates.find_one({'template_id': quest['template_id']})
             quest['amount_of_cp'] = str(len(template['task_list']))
-
-            dd = datetime.date(*map(int, quest['date'].split('-'))) - datetime.date(1970, 1, 1)
-            quest['date'] = dd.days
-
-            times = quest['time'].split(':')
-            quest['time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60 - 3 * 60 * 60
-
-            times = quest['duration'].split(':')
-            quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
 
             quest.pop('template_id')
         return {'message': 'ok', 'count': len(list_of_quests), 'list_of_quests': list_of_quests}
@@ -124,6 +114,7 @@ class ListOfTasks(Resource):
             {'quest_id': req['quest_id'],
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]['personal_order']
         task_list = db_templates.find_one({'template_id': template_id})['task_list']
+
         ans = {'message': 'ok', 'tasks': []}
         tasks = []
         for pos in personal_order:
@@ -138,7 +129,6 @@ class CompleteTask(Resource):
     def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login', 'quest_id', 'task_number')
-        print(ans)
         if ans != 'ok':
             return {'message': ans}
         if db_teams.find_one({'login': req['login']}) is None:
@@ -147,50 +137,27 @@ class CompleteTask(Resource):
             return {'message': 'quest does not exist'}
         if db_quests.find_one({'quest_id': req['quest_id'],
                                f'progress.{req["login"]}': {'$exists': True}}) is None:
-            return {'message': 'team has not joined this quest'}
+            return {'message': 'team has not joined to this quest'}
         progress = db_quests.find_one(
             {'quest_id': req['quest_id'],
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
-        times = progress['times']
         times_complete = progress['times_complete']
         step = int(progress['step'])
         task_number = int(req['task_number'])
-        print(f'complete_task {task_number}')
-        print(times)
-        if task_number < 0 or task_number >= len(times):
+        if task_number < 0 or task_number >= len(times_complete):
             return {'message': 'task_number out of range'}
-        delta = datetime.datetime.now() - datetime.datetime.combine(datetime.datetime.now().date(), datetime.time(0, 0))
-        if int(times[task_number]) != -1:
+
+        if int(times_complete[task_number]) != -1:
             return {'message': 'task already complete'}
-        elif task_number == 0:
-            # В этом случае время прохождения первого задания - разница между текущим временем и
-            # временем запуска самого квеста
-            time_start = db_quests.find_one({'quest_id': req['quest_id']})['time']
-            times_complete[task_number] = delta.seconds - 3 * 60 * 60
-            tt = time_start.split(':')
-            time_start = int(tt[0]) * 60 * 60 + int(tt[1]) * 60
-            times[task_number] = delta.seconds - int(time_start)
-            # Обновление массивов времён прохождения и номера текущего задания(step).
-            # Берётся максимум т.к. возможна ситуация, когда придёт ответ на старое задание, и прогресс вернётся к
-            # следующему после него заданию.
-            db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
-                             {'$set': {
-                                 f'progress.{req["login"]}.times': times,
-                                 f'progress.{req["login"]}.times_complete': times_complete,
-                                 f'progress.{req["login"]}.step': max(step, task_number + 1)
-                             }})
-            return {'message': 'ok'}
-        else:
-            # А здесь время прохождения задания - разница между текущим временем и временем финиша предыдущего
-            times_complete[task_number] = delta.seconds - 3 * 60 * 60
-            times[task_number] = delta.seconds - 3 * 60 * 60 - times_complete[task_number - 1]
-            db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
-                             {'$set': {
-                                 f'progress.{req["login"]}.times': times,
-                                 f'progress.{req["login"]}.times_complete': times_complete,
-                                 f'progress.{req["login"]}.step': max(step, task_number + 1)
-                             }})
-            return {'message': 'ok'}
+
+        quest = db_quests.find_one({'quest_id': req['quest_id']})
+        times_complete[task_number] = int(time.time()) - int(quest['start_time'])
+        db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
+                         {'$set': {
+                             f'progress.{req["login"]}.times_complete': times_complete,
+                             f'progress.{req["login"]}.step': max(step, task_number + 1)
+                         }})
+        return {'message': 'ok', 'time_complete': times_complete[task_number]}
 
 
 # Сохраняет в базу данных информацию о том, что использована подсказка
@@ -234,42 +201,49 @@ class GetState(Resource):
     def post(self):
         req = request.get_json()
         ans = check_input_data(req, 'login')
+        response = {
+                'message': '',
+                'quest_id': '',
+                'team_name': '',
+                'times_complete': [],
+                'step': 0,
+                'seconds': int(time.time() * 1000),
+                'time_zone': time.timezone
+        }
         if ans != 'ok':
-            return {'message': ans}
+            response['message'] = ans
+            return response
         if db_teams.find_one({'login': req['login']}) is None:
-            return {'message': 'team does not exist'}
+            response['message'] = ans
+            return response
         team = db_teams.find_one({'login': req['login']})
+
+        response['message'] = 'ok'
+        response['team_name'] = team['team_name']
         if 'quest_id' not in team:
-            return {'message': 'ok but not'}
+            return response
+
         quest_id = team['quest_id']
         # Если команда вступила в какой то квест, а его уже не существует, то удаляем о нём упоминание
         if db_quests.find_one({'quest_id': quest_id,
                                f'progress.{req["login"]}': {'$exists': True}}) is None:
             db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-            return {'message': 'ok but not'}
+            return response
 
-        quest = db_quests.find_one(db_quests.find_one({'quest_id': quest_id}))
-        #if int(quest['date']) < int(time.time() // 86400):
-        #    db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-        #    return {'message': 'ok'}
+        # quest = db_quests.find_one(db_quests.find_one({'quest_id': quest_id}))
+        # if int(quest['date']) < int(time.time() // 86400):
+        #     db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+        #     return {'message': 'ok'}
         #
-        #if int(quest['time']) + int(quest['duration']) < (datetime.datetime.now() - datetime.datetime.combine(
-        #        datetime.datetime.now().date(), datetime.time(0, 0))).seconds:
-        #    db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
-        #    return {'message': 'ok'}
+        # if int(quest['time']) + int(quest['duration']) < (datetime.datetime.now() - datetime.datetime.combine(
+        #         datetime.datetime.now().date(), datetime.time(0, 0))).seconds:
+        #     db_teams.update({'login': req['login']}, {'$unset': {'quest_id': True}})
+        #     return {'message': 'ok'}
         progress = db_quests.find_one({'quest_id': team['quest_id']})['progress'][req['login']]
-        ans = {
-            'message': 'ok',
-            'quest_id': team['quest_id'],
-            'team_name': team['team_name'],
-            'times': progress['times'],
-            'times_complete': progress['times_complete'],
-            'step': progress['step'],
-            'date_now': int(time.time() // 86400),
-            'time_now': (datetime.datetime.now() - datetime.datetime.combine(
-                datetime.datetime.now().date(), datetime.time(0, 0))).seconds - 3 * 60 * 60
-        }
-        return ans
+        response['quest_id'] = team['quest_id']
+        response['times_complete'] = progress['times_complete']
+        response['step'] = progress['step']
+        return response
 
 
 class LeaveQuest(Resource):
@@ -284,11 +258,11 @@ class LeaveQuest(Resource):
         return {'message': 'ok'}
 
 
-api.add_resource(LoginTeam, f'/api/{version}/loginTeam')
+api.add_resource(SignUp, f'/api/{version}/signUp')
 api.add_resource(RenameTeam, f'/api/{version}/renameTeam')
-api.add_resource(ListOfQuests, f'/api/{version}/listOfQuests')
+api.add_resource(ListOfQuests, f'/api/{version}/quests')
 api.add_resource(JoinToQuest, f'/api/{version}/joinToQuest')
-api.add_resource(ListOfTasks, f'/api/{version}/listOfTasks')
+api.add_resource(ListOfTasks, f'/api/{version}/tasks')
 api.add_resource(CompleteTask, f'/api/{version}/completeTask')
 api.add_resource(UseTip, f'/api/{version}/useTip')
 api.add_resource(GetState, f'/api/{version}/getState')
