@@ -1,47 +1,67 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-grid mdl-grid">
-    <div class="center mdl-cell mdl-cell--4-col mdl-card mdl-shadow--6dp">
+<div class="mdl-grid">
+    <div class="center mdl-cell mdl-cell--5-col mdl-card mdl-shadow--6dp">
+        <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/title.png') center / cover;"></div>
         <form action="saveQuest" method="POST">
             <input style="display: none" value="{{ quest['quest_id'] }}" name="quest_id">
             <input style="display: none" value="save" name="save" id="save">
-            <div class="mdl-card__supporting-text">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
-                    <input name="name" class="mdl-textfield__input" type="text" id="name" value="{{ quest['name'] }}">
-                    <label class="mdl-textfield__label" for="name">Название квеста</label>
+
+
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">
+                        <input class="mdl-textfield__input" id="template_id" readonly>
+                        <input type="hidden" value="{{ quest['template_id'] }}" name="template_id">
+                        <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                        <label for="template_id" class="mdl-textfield__label">Шаблон</label>
+                        <ul for="template_id" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+                            {% for template in templates %}
+                                {% if template['template_id'] == quest['template_id'] %}
+                                    <li class="mdl-menu__item" data-val="{{ template['template_id'] }}" data-selected="true">{{ template['name'] }}</li>
+                                {% else %}
+                                    <li class="mdl-menu__item" data-val="{{ template['template_id'] }}">{{ template['name'] }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select" style="width:100%;">
-                    <input class="mdl-textfield__input" id="template_id" readonly>
-                    <input type="hidden" value="{{ quest['template_id'] }}" name="template_id">
-                    <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
-                    <label for="template_id" class="mdl-textfield__label">Шаблон</label>
-                    <ul for="template_id" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-                        {% for template in templates %}
-                            {% if template['template_id'] == quest['template_id'] %}
-                                <li class="mdl-menu__item" data-val="{{ template['template_id'] }}" data-selected="true">{{ template['name'] }}</li>
-                            {% else %}
-                                <li class="mdl-menu__item" data-val="{{ template['template_id'] }}">{{ template['name'] }}</li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+                <div class="mdl-cell mdl-cell--6-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                        <input name="name" class="mdl-textfield__input" type="text" id="name" value="{{ quest['name'] }}">
+                        <label class="mdl-textfield__label" for="name">Название квеста</label>
+                    </div>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
-                    <input name='date' type='date' class="mdl-textfield__input" id="date" value="{{ quest['date'] }}">
-                    <label class="mdl-textfield__label" for="date">Дата проведения</label>
+                <div class="mdl-cell mdl-cell--6-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                        <input name="place" class="mdl-textfield__input" type="text" id="place" value="{{ quest['place'] }}">
+                        <label class="mdl-textfield__label" for="place">Место проведения</label>
+                    </div>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
-                    <input name='time' type='time' class="mdl-textfield__input" id="time" value="{{ quest['time'] }}">
-                    <label class="mdl-textfield__label" for="time">Время проведения</label>
+
+                <div class="mdl-cell mdl-cell--4-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                        <input name='date' type='date' class="mdl-textfield__input" id="date" value="{{ quest['date'] }}">
+                        <label class="mdl-textfield__label" for="date">Дата проведения</label>
+                    </div>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
-                    <input name="place" class="mdl-textfield__input" type="text" id="place" value="{{ quest['place'] }}">
-                    <label class="mdl-textfield__label" for="place">Место проведения</label>
+
+                <div class="mdl-cell mdl-cell--4-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                        <input name='time' type='time' class="mdl-textfield__input" id="time" value="{{ quest['time'] }}">
+                        <label class="mdl-textfield__label" for="time">Время проведения</label>
+                    </div>
                 </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
-                    <input name='duration' type='time' class="mdl-textfield__input" id="duration" value="{{ quest['duration'] }}">
-                    <label class="mdl-textfield__label" for="duration">Продолжительность</label>
+
+                <div class="mdl-cell mdl-cell--4-col">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%;">
+                        <input name='duration' type='time' class="mdl-textfield__input" id="duration" value="{{ quest['duration'] }}">
+                        <label class="mdl-textfield__label" for="duration">Продолжительность</label>
+                    </div>
                 </div>
             </div>
+
+
             <div class="mdl-card__actions mdl-card--border" style="display: flex;">
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
                     Сохранить
