@@ -2,12 +2,14 @@
 {% block content %}
 <div class="mdl-grid">
     <div class="center mdl-cell mdl-cell--5-col mdl-card mdl-shadow--6dp">
-        <div class="mdl-card__title" style="color: fff; height: 176px; background: url('../static/title.png') center / cover;"></div>
-        <form action="saveQuest" method="POST">
+        <form action="saveQuest" method="POST" enctype="multipart/form-data">
             <input style="display: none" value="{{ quest['quest_id'] }}" name="quest_id">
             <input style="display: none" value="save" name="save" id="save">
 
-
+            <input id="input-file" type="file" name="file" style="display: none">
+            <label id="input-file-holder" for="input-file" style="cursor:pointer">
+                <span class="mdl-card__title" id="img-preview" style="color: fff; height: 176px; background: url('{{ quest['img'] }}') center / cover;"></span>
+            </label>
             <div class="mdl-grid">
                 <div class="mdl-cell mdl-cell--12-col">
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">

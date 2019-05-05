@@ -1,8 +1,8 @@
 from cityorientation import app, db_teams, db_tasks, db_quests, db_templates, db_stat
 from flask import render_template, redirect, url_for, request, send_from_directory
-from random import shuffle
 from werkzeug.utils import secure_filename
 import datetime
+import random
 import time
 import logging
 import os
@@ -42,14 +42,22 @@ def save_quest():
     form = request.form
     if 'quest_id' not in form:
         return redirect(url_for('list_of_quests'))
+    quest = db_quests.find_one({'quest_id': form['quest_id']})
+    last_img = quest['img']
     if form['save'] == 'remove':
         db_quests.remove({'quest_id': form['quest_id']})
+        # Удаляем картинку тоже
+        if last_img != os.path.join(app.config['UPLOAD_FOLDER'], 'quest_default_title.png'):
+            if os.path.isfile(last_img):
+                os.remove(last_img)
         return redirect(url_for('list_of_quests'))
+
     quest = {
         'quest_id': '',
         'template_id': '',
         'name': '',
         'place': '',
+        'img': last_img,
         'start_time': 1546290000, # 1 января 2019 года
         'duration': 3600
     }
@@ -71,6 +79,21 @@ def save_quest():
     if 'duration' in form:
         times = form['duration'].split(':')
         quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+    if len(request.files) != 0:
+        file = request.files.to_dict()['file']
+        sfname = secure_filename(file.filename)
+        ftype = sfname.split('.')[-1]
+        # Если новая картинка загружена корректной
+        if ftype in ['png', 'jpg']:
+            # Удаляем старую картинку т.к. у нас есть новая картинка
+            if last_img != os.path.join(app.config['UPLOAD_FOLDER'], 'quest_default_title.png'):
+                if os.path.isfile(last_img):
+                    os.remove(last_img)
+        # Сохраняем новую картинку
+            img = f'{quest_id}_{int(random.random() * 1000000)}.{ftype}'
+            quest['img'] = os.path.join(app.config['UPLOAD_FOLDER'], img)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], img))
+
     db_quests.update({'quest_id': quest_id}, {'$set': quest})
 
     return redirect(url_for('list_of_quests'))
@@ -83,16 +106,12 @@ def add_quest():
         'quest_id': f'quest_id_{num_quests}',
         'template_id': '',
         'name': '',
+        'img': os.path.join(app.config['UPLOAD_FOLDER'], 'quest_default_title.png'),
         'place': '',
         'start_time': 1546290000, # 1 января 2019 года
         'duration': 3600
     })
     db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
-    return redirect(url_for('list_of_quests'))
-
-
-@app.route('/removeQuest', methods=['GET'])
-def remove_quest():
     return redirect(url_for('list_of_quests'))
 
 
@@ -188,7 +207,7 @@ def list_of_teams():
 def add_team():
     num_team = int(db_stat.find_one({'stat': 'stat'})['num_team'])
     password = [e for e in 'abcdefghtyuipoi1234567890']
-    shuffle(password)
+    random.shuffle(password)
     password = ''.join(password[:6])
     team = {'login': f'team{num_team}',
             'password': password,
