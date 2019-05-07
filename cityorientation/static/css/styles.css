@@ -25,7 +25,6 @@
     z-index: 4;
   }
 }
-
 .mdl-textfield--file {
   .mdl-textfield__input {
     box-sizing: border-box;
@@ -35,7 +34,14 @@
     right: 0;
   }
 }
-
-.mdl-textfield{
+.mdl-textfield {
     width:inherit;
+}
+.blur-label {
+    padding: 4px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    width: 100%;
+    color: #212121;
 }

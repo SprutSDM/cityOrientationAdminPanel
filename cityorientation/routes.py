@@ -59,7 +59,9 @@ def save_quest():
         'place': '',
         'img': last_img,
         'start_time': 1546290000, # 1 января 2019 года
-        'duration': 3600
+        'duration': 3600,
+        'start_text': '',
+        'final_text': ''
     }
     quest_id = form['quest_id']
     quest['quest_id'] = quest_id
@@ -79,6 +81,10 @@ def save_quest():
     if 'duration' in form:
         times = form['duration'].split(':')
         quest['duration'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+    if 'start_text' in form:
+        quest['start_text'] = form['start_text']
+    if 'final_text' in form:
+        quest['final_text'] = form['final_text']
     if len(request.files) != 0:
         file = request.files.to_dict()['file']
         sfname = secure_filename(file.filename)
@@ -109,7 +115,9 @@ def add_quest():
         'img': os.path.join(app.config['UPLOAD_FOLDER'], 'quest_default_title.png'),
         'place': '',
         'start_time': 1546290000, # 1 января 2019 года
-        'duration': 3600
+        'duration': 3600,
+        'start_text': '',
+        'final_text': ''
     })
     db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
     return redirect(url_for('list_of_quests'))
