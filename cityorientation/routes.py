@@ -29,8 +29,10 @@ def list_of_quests():
         quest['template_name'] = 'не указан'
         start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
         quest['date'] = start_time.strftime('%d-%m-%Y, %H:%M')
+
         duration = int(quest['duration'])
-        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
+        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str((duration // 60) % 60))[-2:]
+
         if template is not None:
             quest['amount_of_cp'] = len(template['task_list'])
             quest['template_name'] = template['name']
@@ -61,7 +63,9 @@ def save_quest():
         'start_time': 1546290000, # 1 января 2019 года
         'duration': 3600,
         'start_text': '',
-        'final_text': ''
+        'final_text': '',
+        'tip_1_time': 0,
+        'tip_2_time': 0
     }
     quest_id = form['quest_id']
     quest['quest_id'] = quest_id
@@ -85,6 +89,12 @@ def save_quest():
         quest['start_text'] = form['start_text']
     if 'final_text' in form:
         quest['final_text'] = form['final_text']
+    if 'tip_1_time' in form:
+        times = form['tip_1_time'].split(':')
+        quest['tip_1_time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
+    if 'tip_2_time' in form:
+        times = form['tip_2_time'].split(':')
+        quest['tip_2_time'] = int(times[0]) * 60 * 60 + int(times[1]) * 60
     if len(request.files) != 0:
         file = request.files.to_dict()['file']
         sfname = secure_filename(file.filename)
@@ -117,7 +127,9 @@ def add_quest():
         'start_time': 1546290000, # 1 января 2019 года
         'duration': 3600,
         'start_text': '',
-        'final_text': ''
+        'final_text': '',
+        'tip_1_time': 0,
+        'tip_2_time': 0
     })
     db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
     return redirect(url_for('list_of_quests'))
@@ -279,7 +291,7 @@ def statistic(quest_id):
     start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
     quest['date'] = start_time.strftime('%d-%m-%Y, %H:%M')
     duration = int(quest['duration'])
-    quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
+    quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str((duration // 60) % 60))[-2:]
     if 'progress' in quest:
         for login in quest['progress']:
             if db_teams.find_one({'login': login}) is None:
@@ -332,8 +344,16 @@ def quest_editor():
         start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
         quest['time'] = start_time.strftime('%H:%M')
         quest['date'] = start_time.strftime('%Y-%m-%d')
+
         duration = quest['duration']
-        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str(duration % 60))[-2:]
+        quest['duration'] = ('0' + str(duration // 3600))[-2:] + ':' + ('0' + str((duration // 60) % 60))[-2:]
+
+        tip_1_time = quest['tip_1_time']
+        quest['tip_1_time'] = ('0' + str(tip_1_time // 3600))[-2:] + ':' + ('0' + str((tip_1_time // 60) % 60))[-2:]
+
+        tip_2_time = quest['tip_2_time']
+        quest['tip_2_time'] = ('0' + str(tip_2_time // 3600))[-2:] + ':' + ('0' + str((tip_2_time // 60) % 60))[-2:]
+
         templates = [*db_templates.find({})]
         if db_templates.find_one({'template_id': quest['template_id']}) is None:
             template_name = ''
