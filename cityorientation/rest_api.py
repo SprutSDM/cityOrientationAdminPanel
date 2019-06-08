@@ -87,7 +87,7 @@ class JoinToQuest(Resource):
                 'personal_order': [i for i in range(amount_of_cp)],
                 'times': [-1] * amount_of_cp,
                 'times_complete': [-1] * amount_of_cp,
-                'tips': [0] * amount_of_cp,
+                'tips': [[False, False] for i in range(amount_of_cp)],
                 'step': 0
             }
         }})
@@ -182,14 +182,10 @@ class UseTip(Resource):
         tip_number = int(req['tip_number'])
         if task_number < 0 or task_number >= len(tips):
             return {'message': 'task_number out of range'}
-        if tip_number <= 0 or tip_number >= 3:
+        if tip_number < 0 or tip_number >= 2:
             return {'message': 'tip_number out of range'}
-        if tips[task_number] >= tip_number:
-            return {'message': 'tip has already used'}
-        if tips[task_number] + 1 < tip_number:
-            return {'message': 'need to use previous tip'}
 
-        tips[task_number] = tip_number
+        tips[task_number][tip_number] = True
         db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                          {'$set': {
                              f'progress.{req["login"]}.tips': tips}})
@@ -208,7 +204,8 @@ class GetState(Resource):
                 'times_complete': [],
                 'step': 0,
                 'seconds': int(time.time() * 1000),
-                'time_zone': time.timezone
+                'time_zone': time.timezone,
+                'tips': []
         }
         if ans != 'ok':
             response['message'] = ans
@@ -243,6 +240,8 @@ class GetState(Resource):
         response['quest_id'] = team['quest_id']
         response['times_complete'] = progress['times_complete']
         response['step'] = progress['step']
+        response['tips'] = progress['tips']
+        print(response)
         return response
 
 

@@ -300,13 +300,26 @@ def statistic(quest_id):
             teams.append(dict())
             teams[-1]['name'] = db_teams.find_one({'login': login})['team_name']
             teams[-1]['times_complete'] = quest['progress'][login]['times_complete']
+            teams[-1]['tips'] = quest['progress'][login]['tips']
             for i in range(len(teams[-1]['times_complete'])):
                 tm = int(teams[-1]['times_complete'][i])
                 if tm == -1:
                     teams[-1]['times_complete'][i] = '-'
                 else:
                     teams[-1]['times_complete'][i] = ('00' + str(tm//60//60))[-2:] + ':' + ('00' + str((tm//60) % 60))[-2:] + ':' + ('00' + str(tm % 60))[-2:]
-            teams[-1]['tips'] = quest['progress'][login]['tips']
+
+                tips = teams[-1]['tips'][i]
+                if tips[0]:
+                    teams[-1]['tips'][i] = '+/'
+                else:
+                    teams[-1]['tips'][i] = '-/'
+
+                if tips[1]:
+                    teams[-1]['tips'][i] += '+'
+                else:
+                    teams[-1]['tips'][i] += '-'
+
+            # teams[-1]['tips'] = quest['progress'][login]['tips']
     return render_template('statistic.html', quest=quest, teams=teams, title="Статистика квеста")
 
 
