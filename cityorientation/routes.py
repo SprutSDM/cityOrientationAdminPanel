@@ -1,10 +1,9 @@
-from cityorientation import app, db_teams, db_tasks, db_quests, db_templates, db_stat
+from cityorientation import app, db_teams, db_tasks, db_quests, db_templates, db_stat, timezone
 from flask import render_template, redirect, url_for, request, send_from_directory
 from werkzeug.utils import secure_filename
 import datetime
+import pytz
 import random
-import time
-import logging
 import os
 
 
@@ -27,7 +26,7 @@ def list_of_quests():
         template = db_templates.find_one({'template_id': quest['template_id']})
         quest['amount_of_cp'] = 0
         quest['template_name'] = 'не указан'
-        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
+        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']), tz=pytz.timezone('Europe/Moscow'))
         quest['date'] = start_time.strftime('%d-%m-%Y, %H:%M')
 
         duration = int(quest['duration'])
@@ -65,7 +64,8 @@ def save_quest():
         'start_text': '',
         'final_text': '',
         'tip_1_time': 0,
-        'tip_2_time': 0
+        'tip_2_time': 0,
+        'progress': {}
     }
     quest_id = form['quest_id']
     quest['quest_id'] = quest_id
@@ -80,7 +80,7 @@ def save_quest():
         seconds *= 24 * 60 * 60
         times = form['time'].split(':')
         seconds += int(times[0]) * 60 * 60 + int(times[1]) * 60
-        seconds += time.timezone
+        seconds += timezone
         quest['start_time'] = max(seconds, 1546290000)
     if 'duration' in form:
         times = form['duration'].split(':')
@@ -111,7 +111,6 @@ def save_quest():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], img))
 
     db_quests.update({'quest_id': quest_id}, {'$set': quest})
-
     return redirect(url_for('list_of_quests'))
 
 
@@ -129,7 +128,8 @@ def add_quest():
         'start_text': '',
         'final_text': '',
         'tip_1_time': 0,
-        'tip_2_time': 0
+        'tip_2_time': 0,
+        'progress': {}
     })
     db_stat.update({'stat': 'stat'}, {'$set': {'num_quests': num_quests + 1}})
     return redirect(url_for('list_of_quests'))
@@ -354,7 +354,7 @@ def template_editor():
 def quest_editor():
     if 'quest_id' in request.args:
         quest = db_quests.find_one({'quest_id': request.args['quest_id']})
-        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']))
+        start_time = datetime.datetime.fromtimestamp(max(1546290000, quest['start_time']), tz=pytz.timezone('Europe/Moscow'))
         quest['time'] = start_time.strftime('%H:%M')
         quest['date'] = start_time.strftime('%Y-%m-%d')
 

@@ -1,7 +1,6 @@
 from cityorientation import app, db_teams, db_quests, db_templates, db_tasks
 from flask import request
 from flask_restful import Resource, Api
-import datetime
 import time
 
 api = Api(app)
@@ -54,12 +53,15 @@ class RenameTeam(Resource):
 class ListOfQuests(Resource):
     def get(self):
         list_of_quests = [*db_quests.find({}, {'_id': False, 'progress': False})]
+        quest_ans = []
         for quest in list_of_quests:
             template = db_templates.find_one({'template_id': quest['template_id']})
+            if template is None:
+                continue
             quest['amount_of_cp'] = str(len(template['task_list']))
-
             quest.pop('template_id')
-        return {'message': 'ok', 'count': len(list_of_quests), 'list_of_quests': list_of_quests}
+            quest_ans.append(quest)
+        return {'message': 'ok', 'count': len(quest_ans), 'list_of_quests': quest_ans}
 
 
 # Принять участие в Квесте
@@ -82,9 +84,10 @@ class JoinToQuest(Resource):
 
         template = db_templates.find_one({'template_id': db_quests.find_one({'quest_id': req['quest_id']})['template_id']})
         amount_of_cp = len(template['task_list'])
+        count_of_teams = len(db_quests.find_one({'quest_id': req['quest_id']})['progress'])
         db_quests.update({'quest_id': req['quest_id']}, {'$set': {
             f'progress.{req["login"]}': {
-                'personal_order': [i for i in range(amount_of_cp)],
+                'personal_order': [(i + count_of_teams) % amount_of_cp for i in range(amount_of_cp)],
                 'times': [-1] * amount_of_cp,
                 'times_complete': [-1] * amount_of_cp,
                 'tips': [[False, False] for i in range(amount_of_cp)],
@@ -141,23 +144,24 @@ class CompleteTask(Resource):
         progress = db_quests.find_one(
             {'quest_id': req['quest_id'],
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
+        personal_order = progress['personal_order']
         times_complete = progress['times_complete']
         step = int(progress['step'])
         task_number = int(req['task_number'])
         if task_number < 0 or task_number >= len(times_complete):
             return {'message': 'task_number out of range'}
 
-        if int(times_complete[task_number]) != -1:
+        if int(times_complete[personal_order[task_number]]) != -1:
             return {'message': 'task already complete'}
 
         quest = db_quests.find_one({'quest_id': req['quest_id']})
-        times_complete[task_number] = int(time.time()) - int(quest['start_time'])
+        times_complete[personal_order[task_number]] = int(time.time()) - int(quest['start_time'])
         db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                          {'$set': {
                              f'progress.{req["login"]}.times_complete': times_complete,
                              f'progress.{req["login"]}.step': max(step, task_number + 1)
                          }})
-        return {'message': 'ok', 'time_complete': times_complete[task_number]}
+        return {'message': 'ok', 'time_complete': times_complete[personal_order[task_number]]}
 
 
 # Сохраняет в базу данных информацию о том, что использована подсказка
@@ -178,14 +182,14 @@ class UseTip(Resource):
             {'quest_id': req['quest_id'],
              f'progress.{req["login"]}': {'$exists': True}})['progress'][req["login"]]
         tips = progress['tips']
+        personal_order = progress['personal_order']
         task_number = int(req['task_number'])
         tip_number = int(req['tip_number'])
         if task_number < 0 or task_number >= len(tips):
             return {'message': 'task_number out of range'}
         if tip_number < 0 or tip_number >= 2:
             return {'message': 'tip_number out of range'}
-
-        tips[task_number][tip_number] = True
+        tips[personal_order[task_number]][tip_number] = True
         db_quests.update({'quest_id': req['quest_id'], f'progress.{req["login"]}': {'$exists': True}},
                          {'$set': {
                              f'progress.{req["login"]}.tips': tips}})
