@@ -244,7 +244,12 @@ class GetState(Resource):
         response['quest_id'] = team['quest_id']
         response['times_complete'] = progress['times_complete']
         response['step'] = progress['step']
-        response['tips'] = progress['tips']
+
+        personal_order = progress['personal_order']
+        response['tips'] = progress['tips'][:]
+        for i in range(len(personal_order)):
+            response['tips'][i] = progress['tips'][personal_order[i]]
+        
         print(response)
         return response
 
